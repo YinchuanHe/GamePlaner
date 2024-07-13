@@ -8,9 +8,10 @@ export function canScheduleMatch(
   team_a_pair: Pair,
   team_b_pair: Pair,
   used_pairs: Set<string>,
-  used_players: Set<string>
+  used_players: Set<string>,
+  enableDupPair: boolean,
 ): boolean {
-  if (used_pairs.has(team_a_pair.join(',')) || used_pairs.has(team_b_pair.join(','))) {
+  if (!enableDupPair && (used_pairs.has(team_a_pair.join(',')) || used_pairs.has(team_b_pair.join(',')))) {
     return false;
   }
   if (
@@ -28,9 +29,12 @@ export function scheduleMatches(
   team_a_pairs: Pair[],
   team_b_pairs: Pair[],
   courts: number,
-  max_rounds: number
+  max_rounds: number,
+  enableDupPair: boolean
 ): Pair[][][] {
-  const matches = new Set(team_a_pairs.flatMap(a => team_b_pairs.map(b => [a, b])));
+  const matchesArray = team_a_pairs.flatMap(a => team_b_pairs.map(b => [a, b] as [Pair, Pair]));
+  const shuffledMatches = shuffle(matchesArray);
+  const matches = new Set(shuffledMatches);
   const schedule: Pair[][][] = [];
   const used_pairs = new Set<string>();
 
@@ -42,7 +46,7 @@ export function scheduleMatches(
     for (const match of matches) {
       const [team_a_pair, team_b_pair] = match;
 
-      if (canScheduleMatch(team_a_pair, team_b_pair, used_pairs, used_players)) {
+      if (canScheduleMatch(team_a_pair, team_b_pair, used_pairs, used_players, enableDupPair)) {
         current_round.push([team_a_pair, team_b_pair]);
         used_players.add(team_a_pair[0]).add(team_a_pair[1]).add(team_b_pair[0]).add(team_b_pair[1]);
         round_matches.push(match);
@@ -65,4 +69,12 @@ export function scheduleMatches(
   }
 
   return schedule;
+}
+
+function shuffle(array: any[]) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
