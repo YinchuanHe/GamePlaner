@@ -103,14 +103,15 @@ const Home: React.FC = () => {
   );
 
   const columns: GridColDef[] = [
-    { field: 'round', headerName: 'Round', width: 100 },
-    { field: 'court', headerName: 'Court', width: 100 },
-    { field: 'teamA', headerName: 'Team A', width: 250 },
-    { field: 'teamB', headerName: 'Team B', width: 250 },
+    { field: 'round', headerName: 'R', width: 50 },
+    { field: 'court', headerName: 'C', width: 50 },
+    { field: 'teamA', headerName: 'Team A', width: 80 },
+    { field: 'teamB', headerName: 'Team B', width: 80 },
     {
       field: 'teamAScore',
       headerName: 'Team A Score',
-      width: 150,
+      flex: 1,
+      width: 15,
       renderCell: (params: GridCellParams) => (
         <TextField
           type="number"
@@ -124,7 +125,8 @@ const Home: React.FC = () => {
     {
       field: 'teamBScore',
       headerName: 'Team B Score',
-      width: 150,
+      flex: 1,
+      width: 15,
       renderCell: (params: GridCellParams) => (
         <TextField
           className="no-outline"
@@ -213,7 +215,14 @@ const Home: React.FC = () => {
         />
       </Box>
       <Box mt={4} style={{ height:'600px', width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} getRowClassName={getRowClassName}/>
+        <DataGrid 
+        rows={rows} 
+        columns={columns} 
+        getRowClassName={getRowClassName}
+        disableColumnResize
+        disableColumnMenu
+        disableColumnSorting
+        />
       </Box>
     </Container>
   );
