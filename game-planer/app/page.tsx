@@ -41,15 +41,18 @@ const Home: React.FC = () => {
   };
 
   const handleScoreChange = (id: string, team: 'A' | 'B', value: number) => {
-    setScores(prevScores => ({
-      ...prevScores,
-      [id]: {
-        ...prevScores[id],
-        [`team${team}Score`]: value
-      }
-    }));
-    // Save scores to local storage
-    localStorage.setItem('scores', JSON.stringify(scores));
+    setScores(prevScores => {
+      const newScores = {
+          ...prevScores,
+          [id]: {
+              ...prevScores[id],
+              [`team${team}Score`]: value
+          }
+      };
+      // Save scores to local storage
+      localStorage.setItem('scores', JSON.stringify(newScores));
+      return newScores;
+    });
   };
 
   const handleSubmit = async () => {
@@ -82,6 +85,7 @@ const Home: React.FC = () => {
   const handleClearSchedule = () => {
     setSchedule([]);
     localStorage.removeItem('schedule');
+    localStorage.removeItem('scores')
   };
 
   const teamAPlayerCount = teamAPlayers.split('\n').filter(name => name.trim() !== '').length;
@@ -115,7 +119,7 @@ const Home: React.FC = () => {
         <TextField
           type="number"
           value={params.value}
-          inputProps={{ max: 21 }}
+          inputProps={{ min: 0, max: 21 }}
           className="no-outline"
           onChange={(e) => handleScoreChange(params.id as string, 'A', parseInt(e.target.value, 10))}
         />
@@ -130,7 +134,7 @@ const Home: React.FC = () => {
           className="no-outline"
           type="number"
           value={params.value}
-          inputProps={{ max: 21 }}
+          inputProps={{ min: 0, max: 21 }}
           onChange={(e) => handleScoreChange(params.id as string, 'B', parseInt(e.target.value, 10))}
         />
       ),
