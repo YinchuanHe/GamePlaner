@@ -109,8 +109,8 @@ const Home: React.FC = () => {
   const columns: GridColDef[] = [
     { field: 'round', headerName: 'R', width: 50 },
     { field: 'court', headerName: 'C', width: 50 },
-    { field: 'teamA', headerName: 'Team A', width: 80 },
-    { field: 'teamB', headerName: 'Team B', width: 80 },
+    { field: 'teamA', headerName: 'Team A', flex: 1, maxWidth: 250 },
+    { field: 'teamB', headerName: 'Team B', flex: 1, maxWidth: 250 },
     {
       field: 'teamAScore',
       headerName: 'Team A Score',
@@ -254,7 +254,6 @@ const Home: React.FC = () => {
         rows={rows} 
         columns={columns} 
         getRowClassName={getRowClassName}
-        disableColumnResize
         disableColumnMenu
         disableColumnSorting
         />
