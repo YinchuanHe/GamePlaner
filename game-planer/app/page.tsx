@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Container, TextField, Button, Typography, Grid, Box, Switch, FormControlLabel, Checkbox } from '@mui/material';
+import { Container, TextField, Button, Typography, Grid, Box, Switch, FormControlLabel, Checkbox, TableContainer, Table, Paper, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import axios from 'axios';
 import { DataGrid, GridCellParams, GridColDef, GridRowClassNameParams, GridRowsProp } from '@mui/x-data-grid';
@@ -149,6 +149,12 @@ const Home: React.FC = () => {
     return roundNumber % 2 == 1 ? 'round-bg-1' : '';
   };
 
+  // Calculate total scores and score difference
+  const totalTeamAScore = Object.values(scores).reduce((total, score) => total + (score.teamAScore || 0), 0);
+  const totalTeamBScore = Object.values(scores).reduce((total, score) => total + (score.teamBScore || 0), 0);
+  const teamAscoreDifference = totalTeamAScore - totalTeamBScore;
+  const teamBscoreDifference = totalTeamBScore - totalTeamAScore;
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>
@@ -217,6 +223,31 @@ const Home: React.FC = () => {
             />
           }
         />
+      </Box>
+      <Box mt={4} maxWidth={300}>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Score Type</TableCell>
+                <TableCell>Team A</TableCell>
+                <TableCell>Team B</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              <TableRow>
+                <TableCell>Total Score</TableCell>
+                <TableCell>{totalTeamAScore}</TableCell>
+                <TableCell>{totalTeamBScore}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Score Diff.</TableCell>
+                <TableCell>{teamAscoreDifference}</TableCell>
+                <TableCell>{teamBscoreDifference}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Box>
       <Box mt={4} style={{ height:'600px', width: '100%' }}>
         <DataGrid 
