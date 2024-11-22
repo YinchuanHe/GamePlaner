@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Container, TextField, Button, Typography, Grid, Box, Switch, FormControlLabel, Checkbox, TableContainer, Table, Paper, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { Container, TextField, Button, Typography, Grid, Box, Switch, FormControlLabel, Checkbox, TableContainer, Table, Paper, TableBody, TableCell, TableHead, TableRow, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import axios from 'axios';
 import { DataGrid, GridCellParams, GridColDef, GridRowClassNameParams, GridRowsProp } from '@mui/x-data-grid';
@@ -17,6 +17,7 @@ const Home: React.FC = () => {
   const [schedule, setSchedule] = useState<string[][][]>([]);
   const [enableDupPair, setEnableDupPair] = useState<boolean>(false);
   const [scores, setScores] = useState<{ [key: string]: { teamAScore: number; teamBScore: number } }>({});
+  const [clearDialogOpen, setClearDialogOpen] = useState<boolean>(false);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +54,14 @@ const Home: React.FC = () => {
       localStorage.setItem('scores', JSON.stringify(newScores));
       return newScores;
     });
+  };
+
+  const handleOpenClearDialog = () => {
+    setClearDialogOpen(true); // Open dialog
+  };
+
+  const handleCloseClearDialog = () => {
+    setClearDialogOpen(false); // Close dialog without clearing
   };
 
   const handleSubmit = async () => {
@@ -210,7 +219,7 @@ const Home: React.FC = () => {
         <Button variant="contained" color="primary" onClick={handleSubmit} sx={{marginRight:8}}>
           Generate Match
         </Button>
-        <Button variant="outlined" color="error" startIcon={<DeleteForeverIcon />} onClick={handleClearSchedule} sx={{marginRight:8}}>
+        <Button variant="outlined" color="error" startIcon={<DeleteForeverIcon />} onClick={handleOpenClearDialog} sx={{marginRight:8}}>
           Clear Match
         </Button>
         <FormControlLabel
@@ -224,6 +233,25 @@ const Home: React.FC = () => {
           }
         />
       </Box>
+      <Dialog
+        open={clearDialogOpen}
+        onClose={handleCloseClearDialog}
+      >
+        <DialogTitle>Confirm Clear Match</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to clear the current match schedule and scores? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseClearDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleClearSchedule} color="error" autoFocus>
+            Clear Match
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Box mt={4} maxWidth={300}>
         <TableContainer component={Paper}>
           <Table>
