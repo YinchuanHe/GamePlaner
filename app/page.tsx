@@ -38,6 +38,7 @@ const Home: React.FC = () => {
   const handleLogout = async () => {
     await axios.post('/api/logout');
     localStorage.removeItem('loggedIn');
+    localStorage.removeItem('role');
     window.location.href = '/login';
   };
 
