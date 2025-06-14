@@ -4,9 +4,8 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 interface ProfileData {
-  username: string;
-  role: string;
-  club: string | null;
+  email: string;
+  name?: string | null;
 }
 
 export default function ProfilePage() {
@@ -14,15 +13,13 @@ export default function ProfilePage() {
   const [data, setData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem('loggedIn');
-    const username = localStorage.getItem('username');
-    if (!loggedIn || !username) {
-      router.push('/login');
-      return;
-    }
-    axios
-      .get('/api/profile', { headers: { 'x-username': username } })
-      .then(res => setData(res.data));
+    axios.get('/api/auth/get-session?disableRefresh=true').then(res => {
+      if (!res.data || !res.data.session) {
+        router.push('/login');
+        return;
+      }
+      setData(res.data.session.user);
+    });
   }, [router]);
 
   if (!data) return <div className="p-4">Loading...</div>;
@@ -30,9 +27,8 @@ export default function ProfilePage() {
   return (
     <div className="p-4 space-y-2">
       <h1 className="text-2xl mb-4">Profile</h1>
-      <p><strong>Username:</strong> {data.username}</p>
-      <p><strong>Role:</strong> {data.role}</p>
-      <p><strong>Club:</strong> {data.club || 'None'}</p>
+      <p><strong>Email:</strong> {data.email}</p>
+      {data.name && <p><strong>Name:</strong> {data.name}</p>}
     </div>
   );
 }

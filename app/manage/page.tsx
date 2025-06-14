@@ -24,12 +24,14 @@ export default function ManagePage() {
   const [eventName, setEventName] = useState('');
 
   useEffect(() => {
-    const role = localStorage.getItem('role');
-    if (role !== 'super-admin') {
-      router.push('/');
-      return;
-    }
-    fetchUsers(role);
+    axios.get('/api/auth/get-session?disableRefresh=true').then(res => {
+      const role = res.data?.session?.user?.role;
+      if (role !== 'super-admin') {
+        router.push('/');
+        return;
+      }
+      fetchUsers(role);
+    });
   }, [router]);
 
   const fetchUsers = async (role: string | null) => {
@@ -38,32 +40,23 @@ export default function ManagePage() {
   };
 
   const handleRoleChange = async (username: string, newRole: string) => {
-    const role = localStorage.getItem('role');
-    await axios.put(
-      '/api/users',
-      { username, role: newRole },
-      { headers: { 'x-role': role || '' } }
-    );
+    const { data } = await axios.get('/api/auth/get-session?disableRefresh=true');
+    const role = data?.session?.user?.role;
+    await axios.put('/api/users', { username, role: newRole }, { headers: { 'x-role': role || '' } });
     setUsers(prev => prev.map(u => (u.username === username ? { ...u, role: newRole } : u)));
   };
 
   const handleCreateClub = async () => {
-    const role = localStorage.getItem('role');
-    await axios.post(
-      '/api/clubs',
-      { name: clubName },
-      { headers: { 'x-role': role || '' } }
-    );
+    const { data } = await axios.get('/api/auth/get-session?disableRefresh=true');
+    const role = data?.session?.user?.role;
+    await axios.post('/api/clubs', { name: clubName }, { headers: { 'x-role': role || '' } });
     setClubName('');
   };
 
   const handleCreateEvent = async () => {
-    const role = localStorage.getItem('role');
-    await axios.post(
-      '/api/events',
-      { name: eventName },
-      { headers: { 'x-role': role || '' } }
-    );
+    const { data } = await axios.get('/api/auth/get-session?disableRefresh=true');
+    const role = data?.session?.user?.role;
+    await axios.post('/api/events', { name: eventName }, { headers: { 'x-role': role || '' } });
     setEventName('');
   };
 

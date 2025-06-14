@@ -13,21 +13,21 @@ export default function AppBar() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setLoggedIn(localStorage.getItem('loggedIn') === 'true')
-      setRole(localStorage.getItem('role') || '')
-    }
+    axios.get('/api/auth/get-session?disableRefresh=true').then(res => {
+      const user = res.data?.session?.user
+      if (user) {
+        setLoggedIn(true)
+        setRole(user.role || '')
+      }
+    })
   }, [])
 
   const handleLogout = async () => {
     try {
-      await axios.post('/api/logout')
+      await axios.post('/api/auth/sign-out')
     } catch (e) {
       // ignore errors
     }
-    localStorage.removeItem('loggedIn')
-    localStorage.removeItem('role')
-    localStorage.removeItem('username')
     setLoggedIn(false)
     router.push('/')
   }
