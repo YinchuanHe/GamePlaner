@@ -17,6 +17,7 @@ bun dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 Before accessing the main scheduler you need an account. Visit `/signup` to create one and then log in at `/login`.
+Super admins can manage user roles at `/manage`.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
@@ -40,7 +41,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ## Local Environment Setup
 
 1. Create a `.env.local` file in the root of the project.
-2. Inside that file, define the `DB_URL` variable with your MongoDB connection string:
+2. Inside that file, define the `DB_URL` variable with your MongoDB connection string used by Mongoose:
 
    ```env
    DB_URL=your_mongodb_connection_string

@@ -16,6 +16,7 @@ export default function LoginPage() {
       const res = await axios.post('/api/login', { username, password });
       if (res.data.success) {
         localStorage.setItem('loggedIn', 'true');
+        localStorage.setItem('role', res.data.role);
         router.push('/');
       }
     } catch (e: any) {
