@@ -24,8 +24,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchSession = async () => {
     try {
-      const res = await axios.get('/api/auth/get-session?disableRefresh=true')
-      setUser(res.data?.session?.user || null)
+      const res = await axios.get('/api/auth/session')
+      setUser(res.data?.user || null)
     } catch {
       setUser(null)
     } finally {

@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -15,24 +15,16 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    try {
-      const res = await axios.post('/api/auth/sign-in/email', { email, password });
-      if (res.data.success) {
-        await refresh();
-        router.push('/profile');
-      }
-    } catch (e: any) {
-      setError('Login failed');
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    const res = await axios.post('/api/auth/sign-in/social', {
-      provider: 'google',
-      callbackURL: '/profile',
+    const res = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
     });
-    if (res.data.redirect && res.data.url) {
-      window.location.href = res.data.url;
+    if (!res?.error) {
+      await refresh();
+      router.push('/profile');
+    } else {
+      setError('Login failed');
     }
   };
 
@@ -44,7 +36,6 @@ export default function LoginPage() {
         <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button className="w-full" onClick={handleSubmit}>Login</Button>
-        <Button className="w-full" variant="secondary" onClick={handleGoogleLogin}>Login with Google</Button>
         <Button variant="outline" className="w-full" asChild>
           <Link href="/signup">Sign Up</Link>
         </Button>

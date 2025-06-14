@@ -19,7 +19,7 @@ export default function SignupPage() {
       return;
     }
     try {
-      const res = await axios.post('/api/auth/sign-up/email', { email, password });
+      const res = await axios.post('/api/signup', { username: email, password });
       if (res.data.success) {
         router.push('/login');
       }

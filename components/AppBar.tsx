@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
+import { signOut } from 'next-auth/react'
 import { Button } from './ui/button'
 import { useAuth } from './AuthProvider'
 
@@ -13,11 +13,7 @@ export default function AppBar() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const handleLogout = async () => {
-    try {
-      await axios.post('/api/auth/sign-out')
-    } catch {
-      // ignore errors
-    }
+    await signOut({ redirect: false })
     await refresh()
     router.push('/')
   }
