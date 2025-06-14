@@ -4,7 +4,7 @@ import Club from '../../../models/Club';
 
 export async function GET() {
   await connect();
-  const clubs = await Club.find({}, { _id: 0, name: 1 });
+  const clubs = await Club.find({}, { name: 1 });
   return NextResponse.json({ clubs });
 }
 

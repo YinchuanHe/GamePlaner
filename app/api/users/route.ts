@@ -14,11 +14,22 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   const roleHeader = request.headers.get('x-role');
-  if (roleHeader !== 'super-admin') {
-    return NextResponse.json({ success: false }, { status: 403 });
-  }
+  const reqUser = request.headers.get('x-username');
   const { username, role } = await request.json();
   await connect();
-  await User.updateOne({ username }, { role });
-  return NextResponse.json({ success: true });
+  if (roleHeader === 'super-admin') {
+    await User.updateOne({ username }, { role });
+    return NextResponse.json({ success: true });
+  }
+  if (roleHeader === 'admin') {
+    if (role === 'super-admin') {
+      return NextResponse.json({ success: false }, { status: 403 });
+    }
+    const admin = await User.findOne({ username: reqUser });
+    if (admin && admin.club) {
+      await User.updateOne({ username, club: admin.club }, { role });
+      return NextResponse.json({ success: true });
+    }
+  }
+  return NextResponse.json({ success: false }, { status: 403 });
 }
