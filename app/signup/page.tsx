@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { Container, TextField, Button, Typography, Box } from '@mui/material';
 import Link from 'next/link';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -28,16 +29,18 @@ export default function SignupPage() {
   };
 
   return (
-    <Container maxWidth="xs">
-      <Typography variant="h5" mt={4}>Sign Up</Typography>
-      <Box mt={2}>
-        <TextField label="Username" fullWidth margin="normal" value={username} onChange={e => setUsername(e.target.value)} />
-        <TextField label="Password" type="password" fullWidth margin="normal" value={password} onChange={e => setPassword(e.target.value)} />
-        <TextField label="Confirm Password" type="password" fullWidth margin="normal" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
-        {error && <Typography color="error">{error}</Typography>}
-        <Button variant="contained" fullWidth sx={{ mt: 2 }} onClick={handleSubmit}>Sign Up</Button>
-        <Button component={Link} href="/login" fullWidth sx={{ mt: 1 }}>Back to Login</Button>
-      </Box>
-    </Container>
+    <div className="mx-auto max-w-xs py-8">
+      <h1 className="text-2xl font-semibold mb-4">Sign Up</h1>
+      <div className="space-y-4">
+        <Input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
+        <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+        <Input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <Button className="w-full" onClick={handleSubmit}>Sign Up</Button>
+        <Button variant="outline" className="w-full" asChild>
+          <Link href="/login">Back to Login</Link>
+        </Button>
+      </div>
+    </div>
   );
 }
