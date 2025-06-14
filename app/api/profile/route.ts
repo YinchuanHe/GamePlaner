@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: false }, { status: 400 });
   }
   await connect();
-  const user = await User.findOne({ username }).populate('club');
+  const user = await User.findOne({ username }).populate({ path: 'club', strictPopulate: false });
   if (!user) {
     return NextResponse.json({ success: false }, { status: 404 });
   }
