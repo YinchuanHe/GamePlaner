@@ -1,11 +1,12 @@
-'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 interface ProfileData {
   email: string;
   name?: string | null;
+  username?: string;
 }
 
 export default function ProfilePage() {
@@ -13,12 +14,20 @@ export default function ProfilePage() {
   const [data, setData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
-    axios.get('/api/auth/get-session?disableRefresh=true').then(res => {
+    axios.get("/api/auth/get-session?disableRefresh=true").then(async (res) => {
       if (!res.data || !res.data.session) {
-        router.push('/login');
+        router.push("/login");
         return;
       }
-      setData(res.data.session.user);
+      const user = res.data.session.user;
+      try {
+        const metaRes = await axios.get("/api/meta", {
+          headers: { "x-email": user.email },
+        });
+        setData({ ...user, username: metaRes.data.meta.username });
+      } catch {
+        router.push("/onboarding");
+      }
     });
   }, [router]);
 
@@ -27,8 +36,19 @@ export default function ProfilePage() {
   return (
     <div className="p-4 space-y-2">
       <h1 className="text-2xl mb-4">Profile</h1>
-      <p><strong>Email:</strong> {data.email}</p>
-      {data.name && <p><strong>Name:</strong> {data.name}</p>}
+      <p>
+        <strong>Email:</strong> {data.email}
+      </p>
+      {data.name && (
+        <p>
+          <strong>Name:</strong> {data.name}
+        </p>
+      )}
+      {data.username && (
+        <p>
+          <strong>Username:</strong> {data.username}
+        </p>
+      )}
     </div>
   );
 }
