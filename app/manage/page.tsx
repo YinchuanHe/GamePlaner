@@ -2,7 +2,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { Container, Typography, Table, TableHead, TableRow, TableCell, TableBody, Select, MenuItem } from '@mui/material';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '../../components/ui/select';
 
 interface User {
   username: string;
@@ -29,35 +35,49 @@ export default function ManagePage() {
 
   const handleRoleChange = async (username: string, newRole: string) => {
     const role = localStorage.getItem('role');
-    await axios.put('/api/users', { username, role: newRole }, { headers: { 'x-role': role || '' } });
-    setUsers(prev => prev.map(u => u.username === username ? { ...u, role: newRole } : u));
+    await axios.put(
+      '/api/users',
+      { username, role: newRole },
+      { headers: { 'x-role': role || '' } }
+    );
+    setUsers(prev => prev.map(u => (u.username === username ? { ...u, role: newRole } : u)));
   };
 
   return (
-    <Container sx={{ mt: 4 }}>
-      <Typography variant="h5" gutterBottom>Role Management</Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Username</TableCell>
-            <TableCell>Role</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {users.map(u => (
-            <TableRow key={u.username}>
-              <TableCell>{u.username}</TableCell>
-              <TableCell>
-                <Select value={u.role} onChange={e => handleRoleChange(u.username, e.target.value as string)}>
-                  <MenuItem value="super-admin">super-admin</MenuItem>
-                  <MenuItem value="admin">admin</MenuItem>
-                  <MenuItem value="member">member</MenuItem>
-                </Select>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </Container>
+    <div className="container mx-auto mt-8">
+      <h1 className="text-xl font-semibold mb-4">Role Management</h1>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm border">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border p-2 text-left">Username</th>
+              <th className="border p-2 text-left">Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map(u => (
+              <tr key={u.username} className="odd:bg-white even:bg-gray-50">
+                <td className="border p-2">{u.username}</td>
+                <td className="border p-2">
+                  <Select
+                    value={u.role}
+                    onValueChange={value => handleRoleChange(u.username, value)}
+                  >
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="super-admin">super-admin</SelectItem>
+                      <SelectItem value="admin">admin</SelectItem>
+                      <SelectItem value="member">member</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
