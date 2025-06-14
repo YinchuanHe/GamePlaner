@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AppBar from "../components/AppBar";
 
 
 export const metadata: Metadata = {
@@ -17,7 +18,10 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body>{children}</body>
+      <body>
+        <AppBar />
+        {children}
+      </body>
     </html>
   );
 }
