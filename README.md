@@ -41,12 +41,11 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ## Local Environment Setup
 
 1. Create a `.env.local` file in the root of the project.
-2. Inside that file, define the `DB_URL` variable with your MongoDB connection string used by Mongoose, and the credentials for Google OAuth:
+2. Inside that file, define the `DB_URL` variable with your MongoDB connection string and a `NEXTAUTH_SECRET` used by NextAuth:
 
    ```env
    DB_URL=your_mongodb_connection_string
-   GOOGLE_CLIENT_ID=your_google_client_id
-   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   NEXTAUTH_SECRET=some_complex_secret
    ```
 
 3. Run the development server with `npm run dev`.

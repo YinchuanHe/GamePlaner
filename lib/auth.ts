@@ -1,32 +1,40 @@
-// lib/auth.ts
-import mongoose from 'mongoose';
-import { betterAuth } from 'better-auth';
-import { mongodbAdapter } from 'better-auth/adapters/mongodb';
-import { nextCookies } from 'better-auth/next-js';
-import { MongoClient } from 'mongodb';
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import connect from "../utils/mongoose";
+import User from "../models/User";
 
-if (!mongoose.connection.readyState) {
-  await mongoose.connect(process.env.DB_URL!);
-}
-
-const mongoClient = new MongoClient(process.env.DB_URL!);
-await mongoClient.connect();
-const db = mongoClient.db();
-
-export const auth = betterAuth({
-  database: mongodbAdapter(db),
-  
-  emailAndPassword: { enabled: true },
-  
-  socialProviders: {
-    google: {
-      clientId:     process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+export const authOptions: NextAuthOptions = {
+  session: { strategy: "jwt" },
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials.password) return null;
+        await connect();
+        const user = await User.findOne({
+          username: credentials.email,
+          password: credentials.password,
+        });
+        if (!user) return null;
+        return { id: user._id.toString(), email: user.username, role: user.role };
+      },
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) token.role = (user as any).role;
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).role = token.role as string | undefined;
+      }
+      return session;
     },
   },
-  
-  plugins: [nextCookies()],
-  
-});
-
-export default auth;
+  secret: process.env.NEXTAUTH_SECRET,
+};
