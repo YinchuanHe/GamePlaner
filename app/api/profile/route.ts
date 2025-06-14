@@ -17,5 +17,6 @@ export async function GET(request: Request) {
     username: user.username,
     role: user.role,
     club: user.club ? (user.club as any).name : null,
+    clubId: user.club ? (user.club as any)._id : null,
   });
 }

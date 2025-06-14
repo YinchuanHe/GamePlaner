@@ -11,13 +11,16 @@ export default function AppBar() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [role, setRole] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const [clubId, setClubId] = useState<string | null>(null)
 
   useEffect(() => {
-    axios.get('/api/auth/get-session?disableRefresh=true').then(res => {
+    axios.get('/api/auth/get-session?disableRefresh=true').then(async res => {
       const user = res.data?.session?.user
       if (user) {
         setLoggedIn(true)
         setRole(user.role || '')
+        const prof = await axios.get('/api/profile', { headers: { 'x-username': user.email } })
+        if (prof.data.clubId) setClubId(prof.data.clubId)
       }
     })
   }, [])
@@ -46,6 +49,12 @@ export default function AppBar() {
                   <Link href="/profile" onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Profile</Link>
                   {role === 'super-admin' && (
                     <Link href="/manage" onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Manage</Link>
+                  )}
+                  {clubId && (
+                    <Link href={`/club/${clubId}`} onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Club Home</Link>
+                  )}
+                  {clubId && (role === 'admin' || role === 'super-admin') && (
+                    <Link href="/club-manage" onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Club Manage</Link>
                   )}
                   {(role === 'admin' || role === 'super-admin') && (
                     <Link href="/event-edit" onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Event Edit</Link>
