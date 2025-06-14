@@ -1,6 +1,5 @@
 import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
-import { google } from 'better-auth/social-providers';
 import { nextCookies, toNextJsHandler } from 'better-auth/next-js';
 import { getClient } from '../utils/db';
 

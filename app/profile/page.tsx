@@ -26,7 +26,11 @@ export default function ProfilePage() {
           const metaRes = await axios.get("/api/meta", {
             headers: { "x-email": user.email },
           });
-          setData({ ...user, username: metaRes.data.meta.username });
+          setData({
+            email: user.email as string,
+            name: user.name ?? null,
+            username: metaRes.data.meta.username,
+          });
         } catch {
           router.push("/onboarding");
         }
