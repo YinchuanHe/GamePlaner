@@ -22,7 +22,9 @@ const Home: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load data from local storage
+    if (typeof window !== 'undefined' && !localStorage.getItem('loggedIn')) {
+      window.location.href = '/login';
+    }
     const savedSchedule = localStorage.getItem('schedule');
     const savedScores = localStorage.getItem('scores');
     if (savedSchedule) {
@@ -32,6 +34,12 @@ const Home: React.FC = () => {
       setScores(JSON.parse(savedScores));
     }
   }, []);
+
+  const handleLogout = async () => {
+    await axios.post('/api/logout');
+    localStorage.removeItem('loggedIn');
+    window.location.href = '/login';
+  };
 
   const handlePlayerListChange = (team: 'A' | 'B', value: string) => {
     if (team === 'A') {
@@ -165,12 +173,15 @@ const Home: React.FC = () => {
   const teamBscoreDifference = totalTeamBScore - totalTeamAScore;
 
   return (
-    <Container>
-      <Typography variant="h4" gutterBottom>
-        Badminton Match Scheduler
-      </Typography>
+    <Container maxWidth="sm">
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h4" gutterBottom>
+          Badminton Match Scheduler
+        </Typography>
+        <Button variant="outlined" onClick={handleLogout}>Logout</Button>
+      </Box>
       <Grid container spacing={2}>
-        <Grid item xs={9}>
+        <Grid item xs={12} md={9}>
           <TextField
             label="Team A Member List"
             type='text'
@@ -196,7 +207,7 @@ const Home: React.FC = () => {
             Number of players in Team B: {teamBPlayerCount}
           </Typography>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={12} md={3}>
           <TextField
             label="Number of Courts"
             type="number"
