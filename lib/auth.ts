@@ -11,12 +11,13 @@ async function getHandler() {
     const client = await getClient();
     const auth = betterAuth({
       adapter: mongodbAdapter(client.db()),
+      emailAndPassword: { enabled: true },
       socialProviders: {
-        google:{
+        google: {
           clientId: process.env.GOOGLE_CLIENT_ID as string,
           clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
         },
-    },
+      },
       plugins: [nextCookies()],
     });
     handler = toNextJsHandler(auth);
