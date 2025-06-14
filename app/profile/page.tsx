@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { useAuth } from "../../components/AuthProvider";
 
 interface ProfileData {
   email: string;
@@ -11,25 +12,28 @@ interface ProfileData {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [data, setData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
-    axios.get("/api/auth/get-session?disableRefresh=true").then(async (res) => {
-      if (!res.data || !res.data.session) {
-        router.push("/login");
-        return;
+    const fetchData = async () => {
+      if (!loading) {
+        if (!user) {
+          router.push("/login");
+          return;
+        }
+        try {
+          const metaRes = await axios.get("/api/meta", {
+            headers: { "x-email": user.email },
+          });
+          setData({ ...user, username: metaRes.data.meta.username });
+        } catch {
+          router.push("/onboarding");
+        }
       }
-      const user = res.data.session.user;
-      try {
-        const metaRes = await axios.get("/api/meta", {
-          headers: { "x-email": user.email },
-        });
-        setData({ ...user, username: metaRes.data.meta.username });
-      } catch {
-        router.push("/onboarding");
-      }
-    });
-  }, [router]);
+    };
+    fetchData();
+  }, [user, loading, router]);
 
   if (!data) return <div className="p-4">Loading...</div>;
 

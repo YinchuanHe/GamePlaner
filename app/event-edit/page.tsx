@@ -6,8 +6,13 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Trash2 } from 'lucide-react';
+import { useAuth } from '../../components/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 const Home: React.FC = () => {
+
+  const { user, loading, refresh } = useAuth();
+  const router = useRouter();
 
   const [teamAPlayers, setTeamAPlayers] = useState<string>('');
   const [teamBPlayers, setTeamBPlayers] = useState<string>('');
@@ -22,8 +27,9 @@ const Home: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !localStorage.getItem('loggedIn')) {
-      window.location.href = '/login';
+    if (!loading && !user) {
+      router.push('/login');
+      return;
     }
     const savedSchedule = localStorage.getItem('schedule');
     const savedScores = localStorage.getItem('scores');
@@ -33,13 +39,12 @@ const Home: React.FC = () => {
     if (savedScores) {
       setScores(JSON.parse(savedScores));
     }
-  }, []);
+  }, [user, loading, router]);
 
   const handleLogout = async () => {
     await axios.post('/api/logout');
-    localStorage.removeItem('loggedIn');
-    localStorage.removeItem('role');
-    window.location.href = '/login';
+    await refresh();
+    router.push('/login');
   };
 
   const handlePlayerListChange = (team: 'A' | 'B', value: string) => {
