@@ -1,29 +1,32 @@
+// lib/auth.ts
+import mongoose from 'mongoose';
 import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
-import { nextCookies, toNextJsHandler } from 'better-auth/next-js';
-import { getClient } from '../utils/db';
+import { nextCookies } from 'better-auth/next-js';
+import { MongoClient } from 'mongodb';
 
-let handler: ReturnType<typeof toNextJsHandler> | null = null;
-
-async function getHandler() {
-  if (!handler) {
-    const client = await getClient();
-    const auth = betterAuth({
-      adapter: mongodbAdapter(client.db()),
-      emailAndPassword: { enabled: true },
-      socialProviders: {
-        google: {
-          clientId: process.env.GOOGLE_CLIENT_ID as string,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        },
-      },
-      plugins: [nextCookies()],
-    });
-    handler = toNextJsHandler(auth);
-  }
-  return handler!;
+if (!mongoose.connection.readyState) {
+  await mongoose.connect(process.env.DB_URL!);
 }
 
-export async function getAuthHandler() {
-  return getHandler();
-}
+const mongoClient = new MongoClient(process.env.DB_URL!);
+await mongoClient.connect();
+const db = mongoClient.db();
+
+export const auth = betterAuth({
+  database: mongodbAdapter(db),
+  
+  emailAndPassword: { enabled: true },
+  
+  socialProviders: {
+    google: {
+      clientId:     process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+  
+  plugins: [nextCookies()],
+  
+});
+
+export default auth;
