@@ -9,10 +9,13 @@ import { Button } from './ui/button'
 export default function AppBar() {
   const router = useRouter()
   const [loggedIn, setLoggedIn] = useState(false)
+  const [role, setRole] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setLoggedIn(localStorage.getItem('loggedIn') === 'true')
+      setRole(localStorage.getItem('role') || '')
     }
   }, [])
 
@@ -32,19 +35,31 @@ export default function AppBar() {
   return (
     <nav className="flex items-center justify-between bg-gray-100 border-b px-4 py-2">
       <Link href="/" className="font-semibold">Game Planer</Link>
-      <div className="space-x-4 flex items-center">
+      <div className="space-x-4 flex items-center relative">
         <Link href="/" className="hover:underline">Home</Link>
-        {loggedIn && (
-          <Link href="/profile" className="hover:underline">Profile</Link>
-        )}
-        {!loggedIn && (
-          <Link href="/login" className="hover:underline">Login</Link>
-        )}
-        {!loggedIn && (
-          <Link href="/signup" className="hover:underline">Sign Up</Link>
-        )}
-        {loggedIn && (
-          <Button variant="ghost" onClick={handleLogout} className="px-2 py-1 h-auto">Logout</Button>
+        {loggedIn ? (
+          <>
+            <div className="relative">
+              <Button variant="ghost" onClick={() => setMenuOpen(p => !p)} className="px-2 py-1 h-auto">Menu</Button>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 bg-white border rounded shadow-md z-10 min-w-[120px]">
+                  <Link href="/profile" onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Profile</Link>
+                  {role === 'super-admin' && (
+                    <Link href="/manage" onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Manage</Link>
+                  )}
+                  {(role === 'admin' || role === 'super-admin') && (
+                    <Link href="/event-edit" onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Event Edit</Link>
+                  )}
+                </div>
+              )}
+            </div>
+            <Button variant="ghost" onClick={handleLogout} className="px-2 py-1 h-auto">Logout</Button>
+          </>
+        ) : (
+          <>
+            <Link href="/login" className="hover:underline">Login</Link>
+            <Link href="/signup" className="hover:underline">Sign Up</Link>
+          </>
         )}
       </div>
     </nav>
