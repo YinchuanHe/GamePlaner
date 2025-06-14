@@ -1,6 +1,9 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
-const uri = "mongodb+srv://yinchuan:HYChyc86128958!!@cluster0.kb5m8qt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.DB_URL;
+if (!uri) {
+  throw new Error('DB_URL environment variable is not set');
+}
 
 let client: MongoClient | null = null;
 

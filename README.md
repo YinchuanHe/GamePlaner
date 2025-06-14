@@ -36,3 +36,16 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Local Environment Setup
+
+1. Create a `.env.local` file in the root of the project.
+2. Inside that file, define the `DB_URL` variable with your MongoDB connection string:
+
+   ```env
+   DB_URL=your_mongodb_connection_string
+   ```
+
+3. Run the development server with `npm run dev`.
+
+This `.env.local` file is ignored by git and should not be committed.
