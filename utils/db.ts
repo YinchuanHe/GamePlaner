@@ -1,15 +1,15 @@
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
 const uri = process.env.DB_URL;
-if (!uri) {
-  throw new Error('DB_URL environment variable is not set');
-}
 
 let client: MongoClient | null = null;
 
 export async function getClient() {
   if (!client) {
-    client = new MongoClient(uri, {
+    if (!uri) {
+      throw new Error('DB_URL environment variable is not set');
+    }
+    client = new MongoClient(uri!, {
       serverApi: {
         version: ServerApiVersion.v1,
         strict: true,

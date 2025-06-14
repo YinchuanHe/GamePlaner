@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Container, TextField, Button, Typography, Grid, Box, Switch, FormControlLabel, Checkbox, TableContainer, Table, Paper, TableBody, TableCell, TableHead, TableRow, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import axios from 'axios';
-import { DataGrid, GridCellParams, GridColDef, GridRowClassNameParams, GridRowsProp } from '@mui/x-data-grid';
-import { Height } from '@mui/icons-material';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { Trash2 } from 'lucide-react';
 
 const Home: React.FC = () => {
 
@@ -108,7 +108,7 @@ const Home: React.FC = () => {
   const teamAPlayerCount = teamAPlayers.split('\n').filter(name => name.trim() !== '').length;
   const teamBPlayerCount = teamBPlayers.split('\n').filter(name => name.trim() !== '').length;
 
-  const rows: GridRowsProp = schedule.flatMap((round, roundIndex) =>
+  const rows = schedule.flatMap((round, roundIndex) =>
     round.map((match, matchIndex) => {
       const id = `${roundIndex}-${matchIndex}`;
       return {
@@ -123,48 +123,6 @@ const Home: React.FC = () => {
     })
   );
 
-  const columns: GridColDef[] = [
-    { field: 'round', headerName: 'R', width: 50 },
-    { field: 'court', headerName: 'C', width: 50 },
-    { field: 'teamA', headerName: 'Team A', flex: 1, maxWidth: 250 },
-    { field: 'teamB', headerName: 'Team B', flex: 1, maxWidth: 250 },
-    {
-      field: 'teamAScore',
-      headerName: 'Team A Score',
-      flex: 1,
-      width: 15,
-      renderCell: (params: GridCellParams) => (
-        <TextField
-          type="number"
-          value={params.value}
-          inputProps={{ min: 0, max: 21 }}
-          className="no-outline"
-          onChange={(e) => handleScoreChange(params.id as string, 'A', parseInt(e.target.value, 10))}
-        />
-      ),
-    },
-    {
-      field: 'teamBScore',
-      headerName: 'Team B Score',
-      flex: 1,
-      width: 15,
-      renderCell: (params: GridCellParams) => (
-        <TextField
-          className="no-outline"
-          type="number"
-          value={params.value}
-          inputProps={{ min: 0, max: 21 }}
-          onChange={(e) => handleScoreChange(params.id as string, 'B', parseInt(e.target.value, 10))}
-        />
-      ),
-    },
-  ];
-
-  const getRowClassName = (params: GridRowClassNameParams) => {
-    const roundNumber = params.row.round;
-    // Apply 'round-bg-1' class to odd rounds and skip even rounds
-    return roundNumber % 2 == 1 ? 'round-bg-1' : '';
-  };
 
   // Calculate total scores and score difference
   const totalTeamAScore = Object.values(scores).reduce((total, score) => total + (score.teamAScore || 0), 0);
@@ -173,131 +131,119 @@ const Home: React.FC = () => {
   const teamBscoreDifference = totalTeamBScore - totalTeamAScore;
 
   return (
-    <Container maxWidth="sm">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Typography variant="h4" gutterBottom>
-          Badminton Match Scheduler
-        </Typography>
-        <Button variant="outlined" onClick={handleLogout}>Logout</Button>
-      </Box>
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={9}>
-          <TextField
-            label="Team A Member List"
-            type='text'
-            fullWidth
-            margin="normal"
-            multiline
+    <div className="max-w-screen-md mx-auto p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">Badminton Match Scheduler</h1>
+        <Button variant="outline" onClick={handleLogout}>Logout</Button>
+      </div>
+      <div className="grid md:grid-cols-12 gap-4">
+        <div className="md:col-span-9 space-y-2">
+          <Textarea
+            placeholder="Team A Member List"
             value={teamAPlayers}
             onChange={(e) => handlePlayerListChange('A', e.target.value)}
+            className="min-h-32"
           />
-          <Typography variant="body2" color="textSecondary">
-            Number of players in Team A: {teamAPlayerCount}
-          </Typography>
-          <TextField
-            label="Team B Member List"
-            type='text'
-            fullWidth
-            margin="normal"
-            multiline
+          <p className="text-sm text-muted-foreground">Number of players in Team A: {teamAPlayerCount}</p>
+          <Textarea
+            placeholder="Team B Member List"
             value={teamBPlayers}
             onChange={(e) => handlePlayerListChange('B', e.target.value)}
+            className="min-h-32"
           />
-          <Typography variant="body2" color="textSecondary">
-            Number of players in Team B: {teamBPlayerCount}
-          </Typography>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <TextField
-            label="Number of Courts"
+          <p className="text-sm text-muted-foreground">Number of players in Team B: {teamBPlayerCount}</p>
+        </div>
+        <div className="md:col-span-3 space-y-2">
+          <Input
             type="number"
+            placeholder="Number of Courts"
             value={numCourts}
             onChange={(e) => setNumCourts(parseInt(e.target.value, 10))}
-            fullWidth
-            margin="normal"
           />
-          <TextField
-            label="Maximum Number of Rounds"
+          <Input
             type="number"
+            placeholder="Maximum Number of Rounds"
             value={maxRounds}
             onChange={(e) => setMaxRounds(parseInt(e.target.value, 10))}
-            fullWidth
-            margin="normal"
           />
-        </Grid>
-      </Grid>
-      <Box mt={2}>
-        <Button variant="contained" color="primary" onClick={handleSubmit} sx={{marginRight:8}}>
-          Generate Match
+        </div>
+      </div>
+      <div className="mt-4 flex items-center space-x-4">
+        <Button onClick={handleSubmit}>Generate Match</Button>
+        <Button variant="destructive" onClick={handleOpenClearDialog} className="flex items-center">
+          <Trash2 className="mr-2 h-4 w-4" /> Clear Match
         </Button>
-        <Button variant="outlined" color="error" startIcon={<DeleteForeverIcon />} onClick={handleOpenClearDialog} sx={{marginRight:8}}>
-          Clear Match
-        </Button>
-        <FormControlLabel
-          label="Duplicate Pair Enable"
-          control={
-            <Checkbox
-              checked={enableDupPair}
-              onChange={(e)=>{
-                setEnableDupPair(e.target.checked)}}
-            />
-          }
-        />
-      </Box>
-      <Dialog
-        open={clearDialogOpen}
-        onClose={handleCloseClearDialog}
-      >
-        <DialogTitle>Confirm Clear Match</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to clear the current match schedule and scores? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseClearDialog} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleClearSchedule} color="error" autoFocus>
-            Clear Match
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Box mt={4} maxWidth={300}>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Score Type</TableCell>
-                <TableCell>Team A</TableCell>
-                <TableCell>Team B</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell>Total Score</TableCell>
-                <TableCell>{totalTeamAScore}</TableCell>
-                <TableCell>{totalTeamBScore}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Score Diff.</TableCell>
-                <TableCell>{teamAscoreDifference}</TableCell>
-                <TableCell>{teamBscoreDifference}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-      <Box mt={4} style={{ height:'600px', width: '100%' }}>
-        <DataGrid 
-        rows={rows} 
-        columns={columns} 
-        getRowClassName={getRowClassName}
-        disableColumnMenu
-        disableColumnSorting
-        />
-      </Box>
-    </Container>
+        <label className="flex items-center space-x-2">
+          <input type="checkbox" checked={enableDupPair} onChange={(e) => setEnableDupPair(e.target.checked)} />
+          <span>Duplicate Pair Enable</span>
+        </label>
+      </div>
+      {clearDialogOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
+          <div className="bg-white p-4 rounded-md space-y-4 w-80">
+            <h2 className="text-lg font-medium">Confirm Clear Match</h2>
+            <p>Are you sure you want to clear the current match schedule and scores? This action cannot be undone.</p>
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={handleCloseClearDialog}>Cancel</Button>
+              <Button variant="destructive" onClick={handleClearSchedule}>Clear Match</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="mt-4 max-w-sm">
+        <table className="min-w-full text-sm border">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-2 text-left">Score Type</th>
+              <th className="p-2">Team A</th>
+              <th className="p-2">Team B</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border p-2">Total Score</td>
+              <td className="border p-2 text-center">{totalTeamAScore}</td>
+              <td className="border p-2 text-center">{totalTeamBScore}</td>
+            </tr>
+            <tr>
+              <td className="border p-2">Score Diff.</td>
+              <td className="border p-2 text-center">{teamAscoreDifference}</td>
+              <td className="border p-2 text-center">{teamBscoreDifference}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-4 overflow-x-auto" style={{ height: '600px' }}>
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="p-2">R</th>
+              <th className="p-2">C</th>
+              <th className="p-2">Team A</th>
+              <th className="p-2">Team B</th>
+              <th className="p-2">Team A Score</th>
+              <th className="p-2">Team B Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(row => (
+              <tr key={row.id} className={row.round % 2 === 1 ? 'round-bg-1' : ''}>
+                <td className="border p-2 text-center">{row.round}</td>
+                <td className="border p-2 text-center">{row.court}</td>
+                <td className="border p-2">{row.teamA}</td>
+                <td className="border p-2">{row.teamB}</td>
+                <td className="border p-2 text-center">
+                  <Input type="number" className="no-outline w-20" value={scores[row.id]?.teamAScore ?? 0} onChange={(e) => handleScoreChange(row.id, 'A', parseInt(e.target.value, 10))} />
+                </td>
+                <td className="border p-2 text-center">
+                  <Input type="number" className="no-outline w-20" value={scores[row.id]?.teamBScore ?? 0} onChange={(e) => handleScoreChange(row.id, 'B', parseInt(e.target.value, 10))} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 };
 
