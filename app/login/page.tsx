@@ -29,7 +29,10 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
-    const res = await axios.post('/api/auth/sign-in/social', { provider: 'google' });
+    const res = await axios.post('/api/auth/sign-in/social', {
+      provider: 'google',
+      callbackURL: '/profile',
+    });
     if (res.data.redirect && res.data.url) {
       window.location.href = res.data.url;
     }
