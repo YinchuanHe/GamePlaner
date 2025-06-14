@@ -18,7 +18,8 @@ export default function LoginPage() {
       if (res.data.success) {
         localStorage.setItem('loggedIn', 'true');
         localStorage.setItem('role', res.data.role);
-        router.push('/');
+        localStorage.setItem('username', username);
+        router.push('/profile');
       }
     } catch (e: any) {
       setError('Login failed');

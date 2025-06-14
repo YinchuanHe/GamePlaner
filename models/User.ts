@@ -8,6 +8,7 @@ const userSchema = new Schema({
     enum: ['super-admin', 'admin', 'member'],
     default: 'member',
   },
+  club: { type: Schema.Types.ObjectId, ref: 'Club' },
 });
 
 export default models.User || model('User', userSchema);

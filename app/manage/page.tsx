@@ -9,6 +9,8 @@ import {
   SelectContent,
   SelectItem,
 } from '../../components/ui/select';
+import { Input } from '../../components/ui/input';
+import { Button } from '../../components/ui/button';
 
 interface User {
   username: string;
@@ -18,6 +20,8 @@ interface User {
 export default function ManagePage() {
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
+  const [clubName, setClubName] = useState('');
+  const [eventName, setEventName] = useState('');
 
   useEffect(() => {
     const role = localStorage.getItem('role');
@@ -41,6 +45,26 @@ export default function ManagePage() {
       { headers: { 'x-role': role || '' } }
     );
     setUsers(prev => prev.map(u => (u.username === username ? { ...u, role: newRole } : u)));
+  };
+
+  const handleCreateClub = async () => {
+    const role = localStorage.getItem('role');
+    await axios.post(
+      '/api/clubs',
+      { name: clubName },
+      { headers: { 'x-role': role || '' } }
+    );
+    setClubName('');
+  };
+
+  const handleCreateEvent = async () => {
+    const role = localStorage.getItem('role');
+    await axios.post(
+      '/api/events',
+      { name: eventName },
+      { headers: { 'x-role': role || '' } }
+    );
+    setEventName('');
   };
 
   return (
@@ -77,6 +101,16 @@ export default function ManagePage() {
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="mt-8 space-y-4">
+        <div className="flex items-center space-x-2">
+          <Input placeholder="New Club Name" value={clubName} onChange={e => setClubName(e.target.value)} />
+          <Button onClick={handleCreateClub}>Create Club</Button>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Input placeholder="New Event Name" value={eventName} onChange={e => setEventName(e.target.value)} />
+          <Button onClick={handleCreateEvent}>Create Event</Button>
+        </div>
       </div>
     </div>
   );
