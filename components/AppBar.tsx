@@ -1,34 +1,24 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import { Button } from './ui/button'
+import { useAuth } from './AuthProvider'
 
 export default function AppBar() {
   const router = useRouter()
-  const [loggedIn, setLoggedIn] = useState(false)
-  const [role, setRole] = useState('')
+  const { user, refresh } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
-
-  useEffect(() => {
-    axios.get('/api/auth/get-session?disableRefresh=true').then(res => {
-      const user = res.data?.session?.user
-      if (user) {
-        setLoggedIn(true)
-        setRole(user.role || '')
-      }
-    })
-  }, [])
 
   const handleLogout = async () => {
     try {
       await axios.post('/api/auth/sign-out')
-    } catch (e) {
+    } catch {
       // ignore errors
     }
-    setLoggedIn(false)
+    await refresh()
     router.push('/')
   }
 
@@ -37,17 +27,17 @@ export default function AppBar() {
       <Link href="/" className="font-semibold">Game Planer</Link>
       <div className="space-x-4 flex items-center relative">
         <Link href="/" className="hover:underline">Home</Link>
-        {loggedIn ? (
+        {user ? (
           <>
             <div className="relative">
               <Button variant="ghost" onClick={() => setMenuOpen(p => !p)} className="px-2 py-1 h-auto">Menu</Button>
               {menuOpen && (
                 <div className="absolute right-0 mt-2 bg-white border rounded shadow-md z-10 min-w-[120px]">
                   <Link href="/profile" onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Profile</Link>
-                  {role === 'super-admin' && (
+                  {user.role === 'super-admin' && (
                     <Link href="/manage" onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Manage</Link>
                   )}
-                  {(role === 'admin' || role === 'super-admin') && (
+                  {(user.role === 'admin' || user.role === 'super-admin') && (
                     <Link href="/event-edit" onClick={() => setMenuOpen(false)} className="block px-4 py-2 hover:bg-gray-100">Event Edit</Link>
                   )}
                 </div>

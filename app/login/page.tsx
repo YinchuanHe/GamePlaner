@@ -5,9 +5,11 @@ import axios from 'axios';
 import Link from 'next/link';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import { useAuth } from '../../components/AuthProvider';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { refresh } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -16,11 +18,7 @@ export default function LoginPage() {
     try {
       const res = await axios.post('/api/auth/sign-in/email', { email, password });
       if (res.data.success) {
-        localStorage.setItem('loggedIn', 'true');
-        const session = await axios.get('/api/auth/get-session?disableRefresh=true');
-        const role = session.data?.session?.user?.role;
-        if (role) localStorage.setItem('role', role);
-        localStorage.setItem('username', email);
+        await refresh();
         router.push('/profile');
       }
     } catch (e: any) {

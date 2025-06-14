@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { useAuth } from '../../components/AuthProvider';
 import {
   Select,
   SelectTrigger,
@@ -19,20 +20,20 @@ interface User {
 
 export default function ManagePage() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [clubName, setClubName] = useState('');
   const [eventName, setEventName] = useState('');
 
   useEffect(() => {
-    axios.get('/api/auth/get-session?disableRefresh=true').then(res => {
-      const role = res.data?.session?.user?.role;
-      if (role !== 'super-admin') {
+    if (!loading) {
+      if (user?.role !== 'super-admin') {
         router.push('/');
-        return;
+      } else {
+        fetchUsers(user.role);
       }
-      fetchUsers(role);
-    });
-  }, [router]);
+    }
+  }, [user, loading, router]);
 
   const fetchUsers = async (role: string | null) => {
     const res = await axios.get('/api/users', { headers: { 'x-role': role || '' } });
@@ -40,23 +41,17 @@ export default function ManagePage() {
   };
 
   const handleRoleChange = async (username: string, newRole: string) => {
-    const { data } = await axios.get('/api/auth/get-session?disableRefresh=true');
-    const role = data?.session?.user?.role;
-    await axios.put('/api/users', { username, role: newRole }, { headers: { 'x-role': role || '' } });
+    await axios.put('/api/users', { username, role: newRole }, { headers: { 'x-role': user?.role || '' } });
     setUsers(prev => prev.map(u => (u.username === username ? { ...u, role: newRole } : u)));
   };
 
   const handleCreateClub = async () => {
-    const { data } = await axios.get('/api/auth/get-session?disableRefresh=true');
-    const role = data?.session?.user?.role;
-    await axios.post('/api/clubs', { name: clubName }, { headers: { 'x-role': role || '' } });
+    await axios.post('/api/clubs', { name: clubName }, { headers: { 'x-role': user?.role || '' } });
     setClubName('');
   };
 
   const handleCreateEvent = async () => {
-    const { data } = await axios.get('/api/auth/get-session?disableRefresh=true');
-    const role = data?.session?.user?.role;
-    await axios.post('/api/events', { name: eventName }, { headers: { 'x-role': role || '' } });
+    await axios.post('/api/events', { name: eventName }, { headers: { 'x-role': user?.role || '' } });
     setEventName('');
   };
 

@@ -4,32 +4,28 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
+import { useAuth } from "../../components/AuthProvider";
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    axios.get("/api/auth/get-session?disableRefresh=true").then((res) => {
-      if (!res.data || !res.data.session) {
-        router.push("/login");
-      }
-    });
-  }, [router]);
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [loading, user, router]);
 
   const handleSubmit = async () => {
     try {
-      const session = await axios.get(
-        "/api/auth/get-session?disableRefresh=true",
-      );
-      const email = session.data?.session?.user?.email;
-      if (!email) {
+      if (!user?.email) {
         router.push("/login");
         return;
       }
-      await axios.post("/api/meta", { email, username, name });
+      await axios.post("/api/meta", { email: user.email, username, name });
       router.push("/profile");
     } catch (e) {
       setError("Failed to save profile");
