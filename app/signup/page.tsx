@@ -8,7 +8,7 @@ import { Input } from '../../components/ui/input';
 
 export default function SignupPage() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ export default function SignupPage() {
       return;
     }
     try {
-      const res = await axios.post('/api/signup', { username, password });
+      const res = await axios.post('/api/auth/sign-up/email', { email, password });
       if (res.data.success) {
         router.push('/login');
       }
@@ -32,7 +32,7 @@ export default function SignupPage() {
     <div className="mx-auto max-w-xs py-8">
       <h1 className="text-2xl font-semibold mb-4">Sign Up</h1>
       <div className="space-y-4">
-        <Input placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} />
+        <Input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
         <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
         <Input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
         {error && <p className="text-red-500 text-sm">{error}</p>}
