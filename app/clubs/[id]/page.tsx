@@ -7,6 +7,7 @@ import axios from 'axios';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import EventCard from '../../../components/EventCard';
+import ClubCard from '../../../components/ClubCard';
 
 interface Member {
   id: string;
@@ -28,6 +29,11 @@ export default function ClubHome({ params }: { params: { id: string } }) {
   const [members, setMembers] = useState<Member[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [clubName, setClubName] = useState('');
+  const [clubDesc, setClubDesc] = useState('');
+  const [clubLocation, setClubLocation] = useState('');
+  const [clubCreatedBy, setClubCreatedBy] = useState('');
+  const [clubCreatedAt, setClubCreatedAt] = useState('');
+  const [clubLogo, setClubLogo] = useState('');
   const [isMember, setIsMember] = useState(false);
   const [newEventName, setNewEventName] = useState('');
 
@@ -42,6 +48,11 @@ export default function ClubHome({ params }: { params: { id: string } }) {
       setMembers(res.data.members);
       setEvents(res.data.events);
       setClubName(res.data.club.name);
+      setClubDesc(res.data.club.description || '');
+      setClubLocation(res.data.club.location || '');
+      setClubCreatedBy(res.data.club.createdBy || '');
+      setClubCreatedAt(res.data.club.createdAt || '');
+      setClubLogo(res.data.club.logoUrl || '');
       setIsMember(
         res.data.members.some((m: Member) => m.id === session?.user?.id)
       );
@@ -58,6 +69,12 @@ export default function ClubHome({ params }: { params: { id: string } }) {
     const res = await axios.get(`/api/clubs/${params.id}`);
     setMembers(res.data.members);
     setEvents(res.data.events);
+    setClubName(res.data.club.name);
+    setClubDesc(res.data.club.description || '');
+    setClubLocation(res.data.club.location || '');
+    setClubCreatedBy(res.data.club.createdBy || '');
+    setClubCreatedAt(res.data.club.createdAt || '');
+    setClubLogo(res.data.club.logoUrl || '');
     setIsMember(res.data.members.some((m: Member) => m.id === session?.user?.id));
   };
 
@@ -67,11 +84,27 @@ export default function ClubHome({ params }: { params: { id: string } }) {
     setNewEventName('');
     const res = await axios.get(`/api/clubs/${params.id}`);
     setEvents(res.data.events);
+    setClubName(res.data.club.name);
+    setClubDesc(res.data.club.description || '');
+    setClubLocation(res.data.club.location || '');
+    setClubCreatedBy(res.data.club.createdBy || '');
+    setClubCreatedAt(res.data.club.createdAt || '');
+    setClubLogo(res.data.club.logoUrl || '');
   };
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-semibold">{clubName}</h1>
+      <ClubCard
+        club={{
+          id: params.id,
+          name: clubName,
+          description: clubDesc,
+          location: clubLocation,
+          createdBy: clubCreatedBy,
+          createdAt: clubCreatedAt,
+          logoUrl: clubLogo,
+        }}
+      />
       {showEvents && (
         <div>
           <h2 className="text-xl mb-2">Ongoing Events</h2>

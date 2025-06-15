@@ -7,7 +7,14 @@ import User from '../../../models/User';
 
 export async function GET() {
   await connect();
-  const clubs = await Club.find({}, { _id: 0, name: 1 });
+  const clubs = await Club.find({}, {
+    name: 1,
+    description: 1,
+    location: 1,
+    logoUrl: 1,
+    createdBy: 1,
+    createdAt: 1,
+  });
   return NextResponse.json({ clubs });
 }
 
@@ -16,12 +23,17 @@ export async function POST(request: Request) {
   if (!session || session.user?.role !== 'super-admin') {
     return NextResponse.json({ success: false }, { status: 403 });
   }
-  const { name } = await request.json();
+  const { name, description, location, logoUrl } = await request.json();
   await connect();
   const user = await User.findById(session.user.id);
   const username = user?.username || user?.email || 'unknown';
   const club = await Club.create({
     name,
+    description,
+    location,
+    logoUrl,
+    createdBy: user?.email || '',
+    createdAt: new Date(),
     members: [{ id: user._id, username }],
   });
   // also store the club reference on user for convenience

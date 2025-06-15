@@ -12,6 +12,8 @@ import {
 } from '../../components/ui/select';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
+import ClubCard from '../../components/ClubCard';
+import Link from 'next/link';
 
 interface User {
   username: string;
@@ -21,6 +23,11 @@ interface User {
 interface ClubOption {
   id: string;
   name: string;
+  description?: string;
+  location?: string;
+  createdBy?: string;
+  createdAt?: string;
+  logoUrl?: string;
 }
 
 export default function ManagePage() {
@@ -50,7 +57,17 @@ export default function ManagePage() {
 
   const fetchClubs = async () => {
     const res = await axios.get('/api/clubs');
-    setClubs(res.data.clubs.map((c: any) => ({ id: c._id || c.id, name: c.name })));
+    setClubs(
+      res.data.clubs.map((c: any) => ({
+        id: c._id || c.id,
+        name: c.name,
+        description: c.description,
+        location: c.location,
+        logoUrl: c.logoUrl,
+        createdBy: c.createdBy,
+        createdAt: c.createdAt,
+      }))
+    );
   };
 
   const handleCreateEvent = async () => {
@@ -133,15 +150,13 @@ export default function ManagePage() {
         </div>
         <div>
           <h2 className="text-lg font-semibold mt-4">All Clubs</h2>
-          <ul className="list-disc list-inside space-y-1">
-            {clubs.map((c, idx) => (
-              <li key={idx}>
-                <a href={`/clubs/${c.id}`} className="text-blue-600 hover:underline">
-                  {c.name}
-                </a>
-              </li>
+          <div className="space-y-2">
+            {clubs.map(c => (
+              <Link key={c.id} href={`/clubs/${c.id}`}> 
+                <ClubCard club={c} />
+              </Link>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
     </div>
