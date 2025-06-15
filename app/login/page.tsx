@@ -14,13 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    const res = await signIn("google");
-    if (!res?.error) {
-
-      router.push('/user');
-    } else {
-      setError('Login failed');
-    }
+    await signIn("google");
   };
 
   return (
