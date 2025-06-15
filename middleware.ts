@@ -17,5 +17,5 @@ export default withAuth({
 })
 
 export const config = {
-  matcher: ['/profile', '/manage', '/event-edit', '/api/profile', '/api/users/:path*', '/api/clubs/:path*', '/api/events/:path*']
+  matcher: ['/user', '/profile', '/manage', '/event-edit', '/api/profile', '/api/myclubs', '/api/users/:path*', '/api/clubs/:path*', '/api/events/:path*']
 }

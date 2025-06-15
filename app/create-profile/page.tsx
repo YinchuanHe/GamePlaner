@@ -28,7 +28,7 @@ export default function CreateProfilePage() {
     try {
       console.log({ session })
       await axios.post('/api/signup', { email, username });
-      router.push('/profile');
+      router.push('/user');
     } catch (e: any) {
       setError('Signup failed. Please try again.');
     }

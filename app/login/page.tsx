@@ -17,7 +17,7 @@ export default function LoginPage() {
     const res = await signIn("google");
     if (!res?.error) {
 
-      router.push('/profile');
+      router.push('/user');
     } else {
       setError('Login failed');
     }
