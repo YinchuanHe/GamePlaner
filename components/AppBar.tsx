@@ -1,14 +1,19 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { signOut } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import { Button } from './ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu'
 
 export default function AppBar() {
   const router = useRouter()
-  const [menuOpen, setMenuOpen] = useState(false)
+  const { data: session } = useSession()
 
   const handleLogout = async () => {
     await signOut({ redirect: false })
@@ -20,11 +25,37 @@ export default function AppBar() {
       <Link href="/" className="font-semibold">Game Planer</Link>
       <div className="space-x-4 flex items-center relative">
         <Link href="/" className="hover:underline">Home</Link>
-          
-            <Link href="/login" className="hover:underline">Login</Link>
-            <Link href="/signup" className="hover:underline">Sign Up</Link>
-          
-      
+        {!session ? (
+          <Link href="/login" className="hover:underline">Login</Link>
+        ) : (
+          <>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost">
+                  {session.user?.name || session.user?.email}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onSelect={() => router.push('/profile')}>
+                  Profile
+                </DropdownMenuItem>
+                {(session.user?.role === 'super-admin' || session.user?.role === 'admin') && (
+                  <DropdownMenuItem onSelect={() => router.push('/event-edit')}>
+                    Event Edit
+                  </DropdownMenuItem>
+                )}
+                {session.user?.role === 'super-admin' && (
+                  <DropdownMenuItem onSelect={() => router.push('/manage')}>
+                    Manage
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onSelect={handleLogout}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        )}
       </div>
     </nav>
   )

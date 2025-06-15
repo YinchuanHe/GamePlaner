@@ -16,7 +16,7 @@ const Home: React.FC = () => {
 
   const [teamAPlayers, setTeamAPlayers] = useState<string>('');
   const [teamBPlayers, setTeamBPlayers] = useState<string>('');
-  
+
   const [numCourts, setNumCourts] = useState<number>(6);
   const [maxRounds, setMaxRounds] = useState<number>(10);
   const [schedule, setSchedule] = useState<string[][][]>([]);
@@ -46,11 +46,6 @@ const Home: React.FC = () => {
     }
   }, [status, session, router]);
 
-  const handleLogout = async () => {
-    await axios.post('/api/logout');
-    router.push('/login');
-  };
-
   const handlePlayerListChange = (team: 'A' | 'B', value: string) => {
     if (team === 'A') {
       setTeamAPlayers(value);
@@ -62,11 +57,11 @@ const Home: React.FC = () => {
   const handleScoreChange = (id: string, team: 'A' | 'B', value: number) => {
     setScores(prevScores => {
       const newScores = {
-          ...prevScores,
-          [id]: {
-              ...prevScores[id],
-              [`team${team}Score`]: value
-          }
+        ...prevScores,
+        [id]: {
+          ...prevScores[id],
+          [`team${team}Score`]: value
+        }
       };
       // Save scores to local storage
       localStorage.setItem('scores', JSON.stringify(newScores));
@@ -133,7 +128,6 @@ const Home: React.FC = () => {
     })
   );
 
-
   // Calculate total scores and score difference
   const totalTeamAScore = Object.values(scores).reduce((total, score) => total + (score.teamAScore || 0), 0);
   const totalTeamBScore = Object.values(scores).reduce((total, score) => total + (score.teamBScore || 0), 0);
@@ -144,7 +138,6 @@ const Home: React.FC = () => {
     <div className="max-w-screen-md mx-auto p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Badminton Match Scheduler</h1>
-        <Button variant="outline" onClick={handleLogout}>Logout</Button>
       </div>
       <div className="grid md:grid-cols-12 gap-4">
         <div className="md:col-span-9 space-y-2">

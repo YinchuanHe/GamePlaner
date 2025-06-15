@@ -27,10 +27,8 @@ export default function LoginPage() {
     <div className="mx-auto max-w-xs py-8">
       <h1 className="text-2xl font-semibold mb-4">Login</h1>
       <div className="space-y-4">
-        <Input placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-        <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
         {error && <p className="text-red-500 text-sm">{error}</p>}
-        <Button className="w-full" onClick={handleSubmit}>Login</Button>
+        <Button className="w-full" onClick={handleSubmit}>Login With Google</Button>
       </div>
     </div>
   );

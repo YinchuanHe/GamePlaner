@@ -26,6 +26,7 @@ export default function CreateProfilePage() {
 
   const handleSubmit = async () => {
     try {
+      console.log({ session })
       await axios.post('/api/signup', { email, username });
       router.push('/profile');
     } catch (e: any) {
@@ -37,11 +38,6 @@ export default function CreateProfilePage() {
     <div className="mx-auto max-w-xs py-8">
       <h1 className="text-2xl font-semibold mb-4">Create Your Profile</h1>
       <div className="space-y-4">
-        <Input
-          placeholder="Email"
-          value={email}
-          readOnly
-        />
         <Input
           placeholder="Username"
           value={username}
