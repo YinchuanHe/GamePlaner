@@ -99,7 +99,7 @@ export default function ClubHome({ params }: { params: { id: string } }) {
       <div>
         <h2 className="text-xl mb-2">Members</h2>
         <ul className="list-disc list-inside space-y-1">
-          {members.map(m => (
+          {members?.map(m => (
             <li key={m.id}>{m.username}</li>
           ))}
         </ul>
