@@ -13,7 +13,7 @@ import { useApi } from '../../lib/useApi'
 export default function CreateProfilePage() {
   const router = useRouter();
   const { data: session } = useSession();
-  const { request, loading, error } = useApi();
+  const { request, loading, error: apiError } = useApi();
 
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -43,7 +43,7 @@ export default function CreateProfilePage() {
     return <PageSkeleton />;
   }
 
-  if (error) {
+  if (apiError) {
     return <div className="p-4">Failed to load.</div>;
   }
 

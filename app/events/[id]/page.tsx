@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Input } from '../../../components/ui/input';
@@ -24,7 +24,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
   const [statusText, setStatusText] = useState('');
   const [createdAt, setCreatedAt] = useState('');
 
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     const res = await request<{ event: any }>({
       url: `/api/events/${params.id}`,
       method: 'get',
@@ -34,7 +34,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
     setStatusText(res.event.status);
     setCreatedAt(res.event.createdAt);
     setParticipants(res.event.participants);
-  };
+  }, [params.id, request]);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -43,7 +43,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
       return;
     }
     fetchEvent();
-  }, [status, session, router]);
+  }, [status, session, router, fetchEvent]);
 
   const isAdmin =
     session?.user?.role === 'admin' || session?.user?.role === 'super-admin';

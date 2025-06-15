@@ -61,7 +61,7 @@ export default function ClubHome({ params }: { params: { id: string } }) {
       setIsMember(res.members.some((m: Member) => m.id === session?.user?.id));
     };
     fetchClub();
-  }, [status, session, router, params.id]);
+  }, [status, session, router, params.id, request]);
 
   const isAdmin =
     session?.user?.role === 'admin' || session?.user?.role === 'super-admin';

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import PageSkeleton from '../../components/PageSkeleton'
@@ -41,10 +41,10 @@ export default function ManagePage() {
   const [clubs, setClubs] = useState<ClubOption[]>([]);
   const [selectedClub, setSelectedClub] = useState<string>('');
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     const res = await request<{ users: User[] }>({ url: '/api/users', method: 'get' });
     setUsers(res.users);
-  };
+  }, [request]);
 
   const handleRoleChange = async (username: string, newRole: string) => {
     await request({
@@ -61,7 +61,7 @@ export default function ManagePage() {
     fetchClubs();
   };
 
-  const fetchClubs = async () => {
+  const fetchClubs = useCallback(async () => {
     const res = await request<{ clubs: any[] }>({ url: '/api/clubs', method: 'get' });
     setClubs(
       res.clubs.map((c: any) => ({
@@ -74,7 +74,7 @@ export default function ManagePage() {
         createdAt: c.createdAt,
       }))
     );
-  };
+  }, [request]);
 
   const handleCreateEvent = async () => {
     if (!selectedClub) return;
@@ -98,7 +98,7 @@ export default function ManagePage() {
     }
     fetchUsers();
     fetchClubs();
-  }, [status, session, router]);
+  }, [status, session, router, fetchUsers, fetchClubs]);
 
   if (status === 'loading' || loading) {
     return <PageSkeleton />

@@ -34,7 +34,7 @@ export default function UserPage() {
       setClubs(res.clubs)
     }
     fetchClubs()
-  }, [status, session, router])
+  }, [status, session, router, request])
 
   if (status === 'loading' || loading) {
     return <PageSkeleton />
