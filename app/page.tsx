@@ -1,8 +1,6 @@
 'use client'
 import Link from 'next/link'
 import { Button } from '../components/ui/button'
-import AppBar from "../components/AppBar";
-import { SessionProvider } from 'next-auth/react'
 
 export default function Home() {
   return (
@@ -12,9 +10,6 @@ export default function Home() {
       <div className="space-x-4">
         <Button asChild>
           <Link href="/login">Login</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/signup">Sign Up</Link>
         </Button>
       </div>
     </div>
