@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   await connect();
-  const event = await Event.findById(params.id)
+  const event: any = await Event.findById(params.id)
     .populate('participants', 'username')
     .lean();
   if (!event) {
