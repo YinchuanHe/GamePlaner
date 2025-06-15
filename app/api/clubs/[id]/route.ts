@@ -78,8 +78,9 @@ export async function POST(
     club.members.push({ id: user._id, username });
     await club.save();
   }
-  if (!user.club) {
-    user.club = club._id;
+  if (!Array.isArray(user.clubs)) user.clubs = [];
+  if (!user.clubs.some((c: any) => c.toString() === club._id.toString())) {
+    user.clubs.push(club._id);
     await user.save();
   }
   return NextResponse.json({ success: true });

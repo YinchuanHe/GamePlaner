@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../../auth';
 import connect from '../../../../utils/mongoose';
 import Event from '../../../../models/Event';
-import User from '../../../../models/User';
 
 export async function GET(
   request: Request,
@@ -50,13 +49,12 @@ export async function POST(
   if (!event) {
     return NextResponse.json({ success: false }, { status: 404 });
   }
-  const user = await User.findById(session.user.id);
   const canRegister =
     event.status === 'registration' &&
     (!event.registrationEndTime || event.registrationEndTime > new Date()) &&
     (
       event.visibility === 'public-join' ||
-      (user && event.club && user.club && user.club.toString() === event.club.toString()) ||
+      (event.club && session.user.clubs && session.user.clubs.includes(event.club.toString())) ||
       session.user.role === 'admin' ||
       session.user.role === 'super-admin'
     );

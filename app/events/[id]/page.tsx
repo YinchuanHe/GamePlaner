@@ -71,7 +71,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
       visibility === 'public-join' ||
       session?.user?.role === 'super-admin' ||
       session?.user?.role === 'admin' ||
-      (session?.user?.club && session.user.club === clubId)
+      (session?.user?.clubs && session.user.clubs.includes(clubId))
     );
 
   const joinEvent = async () => {
