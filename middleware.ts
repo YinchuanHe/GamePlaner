@@ -5,7 +5,12 @@ export default withAuth({
     authorized: ({ req, token }) => {
       if (!token) return false
       const path = req.nextUrl.pathname
-      if (path.startsWith('/manage') || path.startsWith('/api/users') || path.startsWith('/api/clubs') || path.startsWith('/api/events')) {
+      if (
+        path.startsWith('/manage') ||
+        path.startsWith('/api/users') ||
+        path === '/api/clubs' ||
+        path.startsWith('/api/events')
+      ) {
         return token.role === 'super-admin'
       }
       if (path.startsWith('/event-edit')) {
