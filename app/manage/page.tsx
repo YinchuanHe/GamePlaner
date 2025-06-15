@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import {
   Select,
@@ -19,12 +20,13 @@ interface User {
 
 export default function ManagePage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [users, setUsers] = useState<User[]>([]);
   const [clubName, setClubName] = useState('');
   const [eventName, setEventName] = useState('');
 
-  const fetchUsers = async (role: string | null) => {
-    const res = await axios.get('/api/users', { headers: { 'x-role': role || '' } });
+  const fetchUsers = async () => {
+    const res = await axios.get('/api/users');
     setUsers(res.data.users);
   };
 
@@ -42,6 +44,19 @@ export default function ManagePage() {
     await axios.post('/api/events', { name: eventName });
     setEventName('');
   };
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (!session) {
+      router.push('/login');
+      return;
+    }
+    if (session.user?.role !== 'super-admin') {
+      router.push('/');
+      return;
+    }
+    fetchUsers();
+  }, [status, session, router]);
 
   return (
     <div className="container mx-auto mt-8">

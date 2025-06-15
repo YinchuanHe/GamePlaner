@@ -1,21 +1,33 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../../../auth';
 import connect from '../../../utils/mongoose';
 import User from '../../../models/User';
-import Club from '../../../models/Club';
+export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ success: false }, { status: 401 });
+  }
+  const { email, username } = await request.json();
 
-export async function GET(request: Request) {
-  const username = request.headers.get('x-username');
-  if (!username) {
+  if (!email && !username) {
     return NextResponse.json({ success: false }, { status: 400 });
   }
+
   await connect();
-  const user = await User.findOne({ username }).populate({ path: 'club', strictPopulate: false });
+
+  const query = email ? { email } : { username };
+  const user = await User.findOne(query).populate({ path: 'club', strictPopulate: false });
+
   if (!user) {
     return NextResponse.json({ success: false }, { status: 404 });
   }
+
   return NextResponse.json({
+    email: user.email,
     username: user.username,
     role: user.role,
+    image: user.image,
     club: user.club ? (user.club as any).name : null,
   });
 }
