@@ -33,14 +33,15 @@ export default function ProfilePage() {
     <div className="p-4 space-y-2">
       <h1 className="text-2xl mb-4">Profile</h1>
       {data.image && (
-        <Image
-          src={data.image}
-          alt="Profile picture"
-          width={96}
-          height={96}
-          className="rounded-full"
-        />
-      )}
+  <Image
+    src={data.image}
+    alt="Profile picture"
+    width={96}
+    height={96}
+    className="rounded-full"
+    priority
+  />
+)}
       <p>
         <strong>Email:</strong> {data.email}
       </p>
