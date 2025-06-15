@@ -18,7 +18,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== 'super-admin') {
+  if (
+    !session ||
+    !(
+      session.user?.role === 'super-admin' || session.user?.role === 'admin'
+    )
+  ) {
     return NextResponse.json({ success: false }, { status: 403 });
   }
   const { name, clubId } = await request.json();

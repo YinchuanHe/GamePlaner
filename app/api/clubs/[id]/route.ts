@@ -29,3 +29,33 @@ export async function GET(
     events: events.map(e => ({ id: e._id.toString(), name: e.name })),
   });
 }
+
+export async function POST(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session || !session.user?.id) {
+    return NextResponse.json({ success: false }, { status: 401 });
+  }
+  await connect();
+  const club = await Club.findById(params.id);
+  if (!club) {
+    return NextResponse.json({ success: false }, { status: 404 });
+  }
+  const user = await User.findById(session.user.id);
+  if (!user) {
+    return NextResponse.json({ success: false }, { status: 404 });
+  }
+  const username = user.username || user.email || 'unknown';
+  const already = club.members.some((m: any) => m.id.toString() === user._id.toString());
+  if (!already) {
+    club.members.push({ id: user._id, username });
+    await club.save();
+  }
+  if (!user.club) {
+    user.club = club._id;
+    await user.save();
+  }
+  return NextResponse.json({ success: true });
+}
