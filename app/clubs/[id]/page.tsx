@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { Input } from '../../../components/ui/input';
+import { Button } from '../../../components/ui/button';
 
 interface Member {
   id: string;
@@ -21,6 +23,8 @@ export default function ClubHome({ params }: { params: { id: string } }) {
   const [members, setMembers] = useState<Member[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [clubName, setClubName] = useState('');
+  const [isMember, setIsMember] = useState(false);
+  const [newEventName, setNewEventName] = useState('');
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -33,12 +37,32 @@ export default function ClubHome({ params }: { params: { id: string } }) {
       setMembers(res.data.members);
       setEvents(res.data.events);
       setClubName(res.data.club.name);
+      setIsMember(
+        res.data.members.some((m: Member) => m.id === session?.user?.id)
+      );
     };
     fetchClub();
   }, [status, session, router, params.id]);
 
-  const showEvents =
+  const isAdmin =
     session?.user?.role === 'admin' || session?.user?.role === 'super-admin';
+  const showEvents = isAdmin;
+
+  const joinClub = async () => {
+    await axios.post(`/api/clubs/${params.id}`);
+    const res = await axios.get(`/api/clubs/${params.id}`);
+    setMembers(res.data.members);
+    setEvents(res.data.events);
+    setIsMember(res.data.members.some((m: Member) => m.id === session?.user?.id));
+  };
+
+  const createEvent = async () => {
+    if (!newEventName) return;
+    await axios.post('/api/events', { name: newEventName, clubId: params.id });
+    setNewEventName('');
+    const res = await axios.get(`/api/clubs/${params.id}`);
+    setEvents(res.data.events);
+  };
 
   return (
     <div className="p-4 space-y-4">
@@ -59,6 +83,17 @@ export default function ClubHome({ params }: { params: { id: string } }) {
               ))}
             </ul>
           )}
+          {isAdmin && (
+            <div className="mt-2 space-x-2 flex items-center">
+              <Input
+                value={newEventName}
+                onChange={e => setNewEventName(e.target.value)}
+                placeholder="Event name"
+                className="w-48"
+              />
+              <Button onClick={createEvent}>Create Event</Button>
+            </div>
+          )}
         </div>
       )}
       <div>
@@ -69,6 +104,9 @@ export default function ClubHome({ params }: { params: { id: string } }) {
           ))}
         </ul>
       </div>
+      {!isMember && (
+        <Button onClick={joinClub}>Join us!</Button>
+      )}
     </div>
   );
 }

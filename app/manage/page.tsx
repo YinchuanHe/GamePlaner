@@ -45,6 +45,7 @@ export default function ManagePage() {
   const handleCreateClub = async () => {
     await axios.post('/api/clubs', { name: clubName });
     setClubName('');
+    fetchClubs();
   };
 
   const fetchClubs = async () => {
@@ -129,6 +130,18 @@ export default function ManagePage() {
             </SelectContent>
           </Select>
           <Button onClick={handleCreateEvent}>Create Event</Button>
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold mt-4">All Clubs</h2>
+          <ul className="list-disc list-inside space-y-1">
+            {clubs.map(c => (
+              <li key={c.id}>
+                <a href={`/clubs/${c.id}`} className="text-blue-600 hover:underline">
+                  {c.name}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>

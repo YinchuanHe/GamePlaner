@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../auth';
 import connect from '../../../utils/mongoose';
 import Club from '../../../models/Club';
+import User from '../../../models/User';
 
 export async function GET() {
   await connect();
@@ -17,6 +18,16 @@ export async function POST(request: Request) {
   }
   const { name } = await request.json();
   await connect();
-  await Club.create({ name });
+  const user = await User.findById(session.user.id);
+  const username = user?.username || user?.email || 'unknown';
+  const club = await Club.create({
+    name,
+    members: [{ id: user._id, username }],
+  });
+  // also store the club reference on user for convenience
+  if (user) {
+    user.club = club._id;
+    await user.save();
+  }
   return NextResponse.json({ success: true });
 }
