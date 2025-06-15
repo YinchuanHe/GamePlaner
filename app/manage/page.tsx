@@ -123,8 +123,8 @@ export default function ManagePage() {
               <SelectValue placeholder="Select Club" />
             </SelectTrigger>
             <SelectContent>
-              {clubs.map(c => (
-                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              {clubs.map((c, idx) => (
+                <SelectItem key={idx} value={c.id}>{c.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
