@@ -5,23 +5,18 @@ import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
-import { useAuth } from '../../components/AuthProvider';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { refresh } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
-    const res = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
+    const res = await signIn("google");
     if (!res?.error) {
-      await refresh();
+
       router.push('/profile');
     } else {
       setError('Login failed');
@@ -36,9 +31,6 @@ export default function LoginPage() {
         <Input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button className="w-full" onClick={handleSubmit}>Login</Button>
-        <Button variant="outline" className="w-full" asChild>
-          <Link href="/signup">Sign Up</Link>
-        </Button>
       </div>
     </div>
   );

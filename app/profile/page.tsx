@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { useAuth } from "../../components/AuthProvider";
 
 interface ProfileData {
   email: string;
@@ -12,32 +11,7 @@ interface ProfileData {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
   const [data, setData] = useState<ProfileData | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!loading) {
-        if (!user) {
-          router.push("/login");
-          return;
-        }
-        try {
-          const metaRes = await axios.get("/api/meta", {
-            headers: { "x-email": user.email },
-          });
-          setData({
-            email: user.email as string,
-            name: user.name ?? null,
-            username: metaRes.data.meta.username,
-          });
-        } catch {
-          router.push("/onboarding");
-        }
-      }
-    };
-    fetchData();
-  }, [user, loading, router]);
 
   if (!data) return <div className="p-4">Loading...</div>;
 

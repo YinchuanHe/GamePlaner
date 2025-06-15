@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { useAuth } from '../../components/AuthProvider';
 import {
   Select,
   SelectTrigger,
@@ -20,20 +19,9 @@ interface User {
 
 export default function ManagePage() {
   const router = useRouter();
-  const { user, loading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [clubName, setClubName] = useState('');
   const [eventName, setEventName] = useState('');
-
-  useEffect(() => {
-    if (!loading) {
-      if (user?.role !== 'super-admin') {
-        router.push('/');
-      } else {
-        fetchUsers(user.role);
-      }
-    }
-  }, [user, loading, router]);
 
   const fetchUsers = async (role: string | null) => {
     const res = await axios.get('/api/users', { headers: { 'x-role': role || '' } });
@@ -41,17 +29,17 @@ export default function ManagePage() {
   };
 
   const handleRoleChange = async (username: string, newRole: string) => {
-    await axios.put('/api/users', { username, role: newRole }, { headers: { 'x-role': user?.role || '' } });
+    await axios.put('/api/users', { username, role: newRole });
     setUsers(prev => prev.map(u => (u.username === username ? { ...u, role: newRole } : u)));
   };
 
   const handleCreateClub = async () => {
-    await axios.post('/api/clubs', { name: clubName }, { headers: { 'x-role': user?.role || '' } });
+    await axios.post('/api/clubs', { name: clubName });
     setClubName('');
   };
 
   const handleCreateEvent = async () => {
-    await axios.post('/api/events', { name: eventName }, { headers: { 'x-role': user?.role || '' } });
+    await axios.post('/api/events', { name: eventName });
     setEventName('');
   };
 

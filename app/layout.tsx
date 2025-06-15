@@ -1,7 +1,9 @@
+
 import type { Metadata } from "next";
 import "./globals.css";
-import AppBar from "../components/AppBar";
-import { AuthProvider } from "../components/AuthProvider";
+import { Providers } from "./Providers";
+
+
 
 
 export const metadata: Metadata = {
@@ -20,10 +22,13 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <AuthProvider>
-          <AppBar />
-          {children}
-        </AuthProvider>
+       
+    <Providers>
+      {children}
+    </Providers>
+          
+        
+          
       </body>
     </html>
   );
