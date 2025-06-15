@@ -12,6 +12,7 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       role?: string | null;
+      club?: string | null;
     };
   }
 }
@@ -21,6 +22,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
     role?: string | null;
+    club?: string | null;
   }
 }
 
@@ -38,6 +40,7 @@ export const authOptions: NextAuthOptions = {
         const dbUser = await User.findOne({ email: user.email });
         token.id = dbUser!._id.toString();
         token.role = dbUser?.role || null
+        token.club = dbUser?.club ? dbUser.club.toString() : null
       }
       return token
     },
@@ -46,6 +49,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id;
         session.user.role = (token.role as string) || null;
+        session.user.club = (token.club as string) || null;
       }
       return session
     },
