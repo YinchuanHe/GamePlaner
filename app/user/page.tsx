@@ -3,8 +3,18 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import axios from 'axios'
+import Link from 'next/link'
+import ClubCard from '../../components/ClubCard'
 
-interface Club { id: string; name: string }
+interface Club {
+  id: string
+  name: string
+  description?: string
+  location?: string
+  createdBy?: string
+  createdAt?: string
+  logoUrl?: string
+}
 
 export default function UserPage() {
   const router = useRouter()
@@ -30,15 +40,13 @@ export default function UserPage() {
       {clubs.length === 0 ? (
         <p>You are not a member of any clubs.</p>
       ) : (
-        <ul className="list-disc list-inside">
+        <div className="space-y-2">
           {clubs.map(c => (
-            <li key={c.id}>
-              <a href={`/clubs/${c.id}`} className="text-blue-600 hover:underline">
-                {c.name}
-              </a>
-            </li>
+            <Link key={c.id} href={`/clubs/${c.id}`}>
+              <ClubCard club={c} />
+            </Link>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   )

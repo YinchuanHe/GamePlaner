@@ -30,7 +30,15 @@ export async function GET(
     participants: 1,
   }).lean();
   return NextResponse.json({
-    club: { id: club._id.toString(), name: club.name },
+    club: {
+      id: club._id.toString(),
+      name: club.name,
+      description: club.description,
+      location: club.location,
+      logoUrl: club.logoUrl,
+      createdBy: club.createdBy,
+      createdAt: club.createdAt,
+    },
     members: members.map(m => ({ id: m._id.toString(), username: m.username })),
     events: events.map(e => ({
       id: e._id.toString(),
