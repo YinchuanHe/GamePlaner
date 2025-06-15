@@ -6,8 +6,14 @@ import Event from '../../../models/Event';
 
 export async function GET() {
   await connect();
-  const events = await Event.find({}, { _id: 0, name: 1 });
-  return NextResponse.json({ events });
+  const events = await Event.find({}, { name: 1, club: 1 });
+  return NextResponse.json({
+    events: events.map(e => ({
+      id: e._id.toString(),
+      name: e.name,
+      club: e.club?.toString() || null,
+    })),
+  });
 }
 
 export async function POST(request: Request) {
@@ -15,8 +21,8 @@ export async function POST(request: Request) {
   if (!session || session.user?.role !== 'super-admin') {
     return NextResponse.json({ success: false }, { status: 403 });
   }
-  const { name } = await request.json();
+  const { name, clubId } = await request.json();
   await connect();
-  await Event.create({ name });
+  await Event.create({ name, club: clubId });
   return NextResponse.json({ success: true });
 }

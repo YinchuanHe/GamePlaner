@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import axios from 'axios'
 
-interface Club { name: string }
+interface Club { id: string; name: string }
 
 export default function UserPage() {
   const router = useRouter()
@@ -32,7 +32,11 @@ export default function UserPage() {
       ) : (
         <ul className="list-disc list-inside">
           {clubs.map(c => (
-            <li key={c.name}>{c.name}</li>
+            <li key={c.id}>
+              <a href={`/clubs/${c.id}`} className="text-blue-600 hover:underline">
+                {c.name}
+              </a>
+            </li>
           ))}
         </ul>
       )}
