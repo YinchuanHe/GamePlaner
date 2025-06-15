@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
+import EventEdit from '../../../components/EventEdit';
 
 interface Participant {
   id: string;
@@ -66,6 +67,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
           ))}
         </ul>
       </div>
+      {isAdmin && <EventEdit />}
       {!isAdmin && (
         <Button onClick={joinEvent}>Join Event</Button>
       )}
