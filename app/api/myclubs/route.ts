@@ -6,7 +6,7 @@ import Club from '../../../models/Club'
 
 export async function GET() {
   const session = await getServerSession(authOptions)
-  if (!session || !session.user?.id) {
+  if (!session || !session.user) {
     return NextResponse.json({ success: false }, { status: 401 })
   }
   await connect()
