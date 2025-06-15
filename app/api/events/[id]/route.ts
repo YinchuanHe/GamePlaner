@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../../auth';
 import connect from '../../../../utils/mongoose';
 import Event from '../../../../models/Event';
+import User from '../../../../models/User';
 
 export async function GET(
   request: Request,
@@ -11,6 +12,7 @@ export async function GET(
   await connect();
   const event: any = await Event.findById(params.id)
     .populate('participants', 'username')
+    .populate('club', 'name')
     .lean();
   if (!event) {
     return NextResponse.json({ success: false }, { status: 404 });
@@ -25,6 +27,10 @@ export async function GET(
       name: event.name,
       status: event.status,
       visibility: event.visibility,
+      registrationEndTime: event.registrationEndTime,
+      location: event.location,
+      club: event.club?._id ? event.club._id.toString() : null,
+      clubName: event.club?.name || null,
       createdAt: event.createdAt,
       participants,
     },
@@ -44,6 +50,20 @@ export async function POST(
   if (!event) {
     return NextResponse.json({ success: false }, { status: 404 });
   }
+  const user = await User.findById(session.user.id);
+  const canRegister =
+    event.status === 'registration' &&
+    (!event.registrationEndTime || event.registrationEndTime > new Date()) &&
+    (
+      event.visibility === 'public-join' ||
+      (user && event.club && user.club && user.club.toString() === event.club.toString()) ||
+      session.user.role === 'admin' ||
+      session.user.role === 'super-admin'
+    );
+  if (!canRegister) {
+    return NextResponse.json({ success: false }, { status: 403 });
+  }
+
   const userId = session.user.id;
   if (!event.participants.some((p: any) => p.toString() === userId)) {
     event.participants.push(userId);
@@ -61,12 +81,14 @@ export async function PUT(
     !(session.user?.role === 'super-admin' || session.user?.role === 'admin')) {
     return NextResponse.json({ success: false }, { status: 403 });
   }
-  const { name, status, visibility } = await request.json();
+  const { name, status, visibility, registrationEndTime, location } = await request.json();
   await connect();
   const update: any = {};
   if (name !== undefined) update.name = name;
   if (status !== undefined) update.status = status;
   if (visibility !== undefined) update.visibility = visibility;
+  if (registrationEndTime !== undefined) update.registrationEndTime = registrationEndTime;
+  if (location !== undefined) update.location = location;
   await Event.updateOne({ _id: params.id }, update);
   return NextResponse.json({ success: true });
 }

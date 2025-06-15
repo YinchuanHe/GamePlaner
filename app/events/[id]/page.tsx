@@ -22,7 +22,13 @@ export default function EventPage({ params }: { params: { id: string } }) {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [editingName, setEditingName] = useState('');
   const [statusText, setStatusText] = useState('');
+  const [visibility, setVisibility] = useState('');
   const [createdAt, setCreatedAt] = useState('');
+  const [registrationEndTime, setRegistrationEndTime] = useState('');
+  const [clubName, setClubName] = useState('');
+  const [clubId, setClubId] = useState('');
+  const [location, setLocation] = useState('');
+  const [isParticipant, setIsParticipant] = useState(false);
 
   const fetchEvent = useCallback(async () => {
     const res = await request<{ event: any }>({
@@ -32,9 +38,17 @@ export default function EventPage({ params }: { params: { id: string } }) {
     setName(res.event.name);
     setEditingName(res.event.name);
     setStatusText(res.event.status);
+    setVisibility(res.event.visibility);
     setCreatedAt(res.event.createdAt);
+    setRegistrationEndTime(res.event.registrationEndTime || '');
+    setClubName(res.event.clubName || '');
+    setClubId(res.event.club || '');
+    setLocation(res.event.location || '');
     setParticipants(res.event.participants);
-  }, [params.id, request]);
+    if (session?.user?.id) {
+      setIsParticipant(res.event.participants.some((p: any) => p.id === session.user?.id));
+    }
+  }, [params.id, request, session]);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -47,6 +61,18 @@ export default function EventPage({ params }: { params: { id: string } }) {
 
   const isAdmin =
     session?.user?.role === 'admin' || session?.user?.role === 'super-admin';
+
+  const canRegister =
+    !isAdmin &&
+    !isParticipant &&
+    statusText === 'registration' &&
+    (!registrationEndTime || dayjs(registrationEndTime).isAfter(dayjs())) &&
+    (
+      visibility === 'public-join' ||
+      session?.user?.role === 'super-admin' ||
+      session?.user?.role === 'admin' ||
+      (session?.user?.club && session.user.club === clubId)
+    );
 
   const joinEvent = async () => {
     await request({ url: `/api/events/${params.id}`, method: 'post' });
@@ -81,7 +107,18 @@ export default function EventPage({ params }: { params: { id: string } }) {
       ) : (
         <p className="text-xl">{name}</p>
       )}
+      {clubName && (
+        <p className="text-sm text-muted-foreground">Host: {clubName}</p>
+      )}
+      {location && (
+        <p className="text-sm text-muted-foreground">Location: {location}</p>
+      )}
       <p className="text-sm text-muted-foreground">Status: {statusText}</p>
+      {registrationEndTime && (
+        <p className="text-sm text-muted-foreground">
+          Register by: {dayjs(registrationEndTime).format('YYYY-MM-DD HH:mm')}
+        </p>
+      )}
       <p className="text-sm text-muted-foreground">
         Created: {dayjs(createdAt).format('YYYY-MM-DD HH:mm')}
       </p>
@@ -94,8 +131,8 @@ export default function EventPage({ params }: { params: { id: string } }) {
         </ul>
       </div>
       {isAdmin && <EventEdit />}
-      {!isAdmin && (
-        <Button onClick={joinEvent}>Join Event</Button>
+      {canRegister && (
+        <Button onClick={joinEvent}>Register</Button>
       )}
     </div>
   );

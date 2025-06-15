@@ -7,7 +7,7 @@ const eventSchema = new Schema(
     participants: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     status: {
       type: String,
-      enum: ['preparing', 'on-going', 'ended'],
+      enum: ['preparing', 'registration', 'arranging-matches', 'match-running', 'ended'],
       default: 'preparing',
     },
     visibility: {
@@ -15,6 +15,8 @@ const eventSchema = new Schema(
       enum: ['private', 'public-view', 'public-join'],
       default: 'private',
     },
+    registrationEndTime: { type: Date, required: false },
+    location: { type: String },
   },
   { timestamps: true },
 );
