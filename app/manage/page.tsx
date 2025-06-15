@@ -134,8 +134,8 @@ export default function ManagePage() {
         <div>
           <h2 className="text-lg font-semibold mt-4">All Clubs</h2>
           <ul className="list-disc list-inside space-y-1">
-            {clubs.map(c => (
-              <li key={c.id}>
+            {clubs.map((c, idx) => (
+              <li key={idx}>
                 <a href={`/clubs/${c.id}`} className="text-blue-600 hover:underline">
                   {c.name}
                 </a>
