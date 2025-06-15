@@ -7,10 +7,12 @@ import { Input } from '../../components/ui/input';
 import { Textarea } from '../../components/ui/textarea';
 import { Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 const Home: React.FC = () => {
 
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   const [teamAPlayers, setTeamAPlayers] = useState<string>('');
   const [teamBPlayers, setTeamBPlayers] = useState<string>('');
@@ -25,6 +27,15 @@ const Home: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (status === 'loading') return;
+    if (!session) {
+      router.push('/login');
+      return;
+    }
+    if (session.user?.role !== 'admin' && session.user?.role !== 'super-admin') {
+      router.push('/');
+      return;
+    }
     const savedSchedule = localStorage.getItem('schedule');
     const savedScores = localStorage.getItem('scores');
     if (savedSchedule) {
@@ -33,7 +44,7 @@ const Home: React.FC = () => {
     if (savedScores) {
       setScores(JSON.parse(savedScores));
     }
-  }, [router]);
+  }, [status, session, router]);
 
   const handleLogout = async () => {
     await axios.post('/api/logout');

@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google"
 import connect from "@/utils/mongoose";
 import User from "@/models/User";
 
-// Extend the default session user type to include 'id'
+// Extend the default session user type to include id and role
 declare module "next-auth" {
   interface Session {
     user: {
@@ -11,7 +11,15 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
-    }
+      role?: string | null;
+    };
+  }
+}
+
+// Extend JWT to carry the user role
+declare module "next-auth/jwt" {
+  interface JWT {
+    role?: string | null;
   }
 }
 
@@ -25,11 +33,16 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.AUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = (user as any)._id
+      if (user) {
+        token.id = (user as any)._id
+        const dbUser = await User.findOne({ email: user.email })
+        token.role = dbUser?.role || null
+      }
       return token
     },
     async session({ session, token }) {
       if (token.id && session.user) session.user.id = token.id as string
+      if (session.user) session.user.role = (token.role as string) || null
       return session
     },
     async signIn({ user }) {

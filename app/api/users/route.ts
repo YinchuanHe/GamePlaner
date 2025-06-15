@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../../../auth';
 import connect from '../../../utils/mongoose';
 import User from '../../../models/User';
 
 export async function GET(request: Request) {
-  const role = request.headers.get('x-role');
-  if (role !== 'super-admin') {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'super-admin') {
     return NextResponse.json({ success: false }, { status: 403 });
   }
   await connect();
@@ -13,8 +15,8 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const roleHeader = request.headers.get('x-role');
-  if (roleHeader !== 'super-admin') {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'super-admin') {
     return NextResponse.json({ success: false }, { status: 403 });
   }
   const { username, role } = await request.json();

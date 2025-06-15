@@ -19,6 +19,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 Before accessing the main scheduler you need an account. Visit `/signup` to create one and then log in at `/login`.
 Super admins can manage user roles at `/manage`.
 
+### Security & roles
+
+API routes and pages are protected with NextAuth middleware. The session stores each user's role so that middleware and server handlers can enforce access rules. The profile API requires authentication and accepts a POST body with the user's `email` or `username`.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
