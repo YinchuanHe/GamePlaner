@@ -15,14 +15,14 @@ export async function GET(
     return NextResponse.json({ success: false }, { status: 401 });
   }
   await connect();
-  const club = await Club.findById(params.id).lean();
+  const club: any = await Club.findById(params.id).lean();
   if (!club) {
     return NextResponse.json({ success: false }, { status: 404 });
   }
   const memberIds = club.members.map((m: any) => m.id);
-  const members = await User.find({ _id: { $in: memberIds } }, { username: 1 })
+  const members: any[] = await User.find({ _id: { $in: memberIds } }, { username: 1 })
     .lean();
-  const events = await Event.find({ club: params.id }, {
+  const events: any[] = await Event.find({ club: params.id }, {
     name: 1,
     status: 1,
     visibility: 1,
