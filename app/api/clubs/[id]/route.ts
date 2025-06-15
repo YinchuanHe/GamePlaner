@@ -1,0 +1,31 @@
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '../../../../auth';
+import connect from '../../../../utils/mongoose';
+import Club from '../../../../models/Club';
+import Event from '../../../../models/Event';
+import User from '../../../../models/User';
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ success: false }, { status: 401 });
+  }
+  await connect();
+  const club = await Club.findById(params.id).lean();
+  if (!club) {
+    return NextResponse.json({ success: false }, { status: 404 });
+  }
+  const memberIds = club.members.map((m: any) => m.id);
+  const members = await User.find({ _id: { $in: memberIds } }, { username: 1 })
+    .lean();
+  const events = await Event.find({ club: params.id }, { name: 1 }).lean();
+  return NextResponse.json({
+    club: { id: club._id.toString(), name: club.name },
+    members: members.map(m => ({ id: m._id.toString(), username: m.username })),
+    events: events.map(e => ({ id: e._id.toString(), name: e.name })),
+  });
+}

@@ -18,12 +18,19 @@ interface User {
   role: string;
 }
 
+interface ClubOption {
+  id: string;
+  name: string;
+}
+
 export default function ManagePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [users, setUsers] = useState<User[]>([]);
   const [clubName, setClubName] = useState('');
   const [eventName, setEventName] = useState('');
+  const [clubs, setClubs] = useState<ClubOption[]>([]);
+  const [selectedClub, setSelectedClub] = useState<string>('');
 
   const fetchUsers = async () => {
     const res = await axios.get('/api/users');
@@ -40,8 +47,14 @@ export default function ManagePage() {
     setClubName('');
   };
 
+  const fetchClubs = async () => {
+    const res = await axios.get('/api/clubs');
+    setClubs(res.data.clubs.map((c: any) => ({ id: c._id || c.id, name: c.name })));
+  };
+
   const handleCreateEvent = async () => {
-    await axios.post('/api/events', { name: eventName });
+    if (!selectedClub) return;
+    await axios.post('/api/events', { name: eventName, clubId: selectedClub });
     setEventName('');
   };
 
@@ -56,6 +69,7 @@ export default function ManagePage() {
       return;
     }
     fetchUsers();
+    fetchClubs();
   }, [status, session, router]);
 
   return (
@@ -99,7 +113,21 @@ export default function ManagePage() {
           <Button onClick={handleCreateClub}>Create Club</Button>
         </div>
         <div className="flex items-center space-x-2">
-          <Input placeholder="New Event Name" value={eventName} onChange={e => setEventName(e.target.value)} />
+          <Input
+            placeholder="New Event Name"
+            value={eventName}
+            onChange={e => setEventName(e.target.value)}
+          />
+          <Select value={selectedClub} onValueChange={setSelectedClub}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select Club" />
+            </SelectTrigger>
+            <SelectContent>
+              {clubs.map(c => (
+                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button onClick={handleCreateEvent}>Create Event</Button>
         </div>
       </div>

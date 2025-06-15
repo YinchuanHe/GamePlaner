@@ -10,6 +10,8 @@ export async function GET() {
     return NextResponse.json({ success: false }, { status: 401 })
   }
   await connect()
-  const clubs = await Club.find({ 'members.id': session.user.id }, { _id: 0, name: 1 })
-  return NextResponse.json({ clubs })
+  const clubs = await Club.find({ 'members.id': session.user.id }, { name: 1 })
+  return NextResponse.json({
+    clubs: clubs.map(c => ({ id: c._id.toString(), name: c.name }))
+  })
 }
