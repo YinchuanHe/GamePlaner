@@ -19,6 +19,7 @@ declare module "next-auth" {
 // Extend JWT to carry the user role
 declare module "next-auth/jwt" {
   interface JWT {
+    id?: string;
     role?: string | null;
   }
 }
@@ -34,15 +35,18 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = (user as any)._id
-        const dbUser = await User.findOne({ email: user.email })
+        const dbUser = await User.findOne({ email: user.email });
+        token.id = dbUser!._id.toString();
         token.role = dbUser?.role || null
       }
       return token
     },
     async session({ session, token }) {
       if (token.id && session.user) session.user.id = token.id as string
-      if (session.user) session.user.role = (token.role as string) || null
+      if (session.user) {
+        session.user.id = token.id;
+        session.user.role = (token.role as string) || null;
+      }
       return session
     },
     async signIn({ user }) {
@@ -51,7 +55,7 @@ export const authOptions: NextAuthOptions = {
 
       if (existingUser) {
         return true;
-      }else {
+      } else {
         // If user does not exist, create a new user
         await User.create({
           email: user.email,
