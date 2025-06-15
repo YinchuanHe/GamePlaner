@@ -22,11 +22,24 @@ export async function GET(
   const memberIds = club.members.map((m: any) => m.id);
   const members = await User.find({ _id: { $in: memberIds } }, { username: 1 })
     .lean();
-  const events = await Event.find({ club: params.id }, { name: 1 }).lean();
+  const events = await Event.find({ club: params.id }, {
+    name: 1,
+    status: 1,
+    visibility: 1,
+    createdAt: 1,
+    participants: 1,
+  }).lean();
   return NextResponse.json({
     club: { id: club._id.toString(), name: club.name },
     members: members.map(m => ({ id: m._id.toString(), username: m.username })),
-    events: events.map(e => ({ id: e._id.toString(), name: e.name })),
+    events: events.map(e => ({
+      id: e._id.toString(),
+      name: e.name,
+      status: e.status,
+      visibility: e.visibility,
+      createdAt: e.createdAt,
+      participantCount: e.participants.length,
+    })),
   });
 }
 

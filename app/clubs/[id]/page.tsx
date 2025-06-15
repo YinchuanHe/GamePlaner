@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
+import EventCard from '../../../components/EventCard';
 
 interface Member {
   id: string;
@@ -15,6 +16,10 @@ interface Member {
 interface EventItem {
   id: string;
   name: string;
+  status: string;
+  createdAt: string;
+  participantCount?: number;
+  visibility: string;
 }
 
 export default function ClubHome({ params }: { params: { id: string } }) {
@@ -46,7 +51,7 @@ export default function ClubHome({ params }: { params: { id: string } }) {
 
   const isAdmin =
     session?.user?.role === 'admin' || session?.user?.role === 'super-admin';
-  const showEvents = isAdmin;
+  const showEvents = isAdmin || isMember;
 
   const joinClub = async () => {
     await axios.post(`/api/clubs/${params.id}`);
@@ -70,18 +75,18 @@ export default function ClubHome({ params }: { params: { id: string } }) {
       {showEvents && (
         <div>
           <h2 className="text-xl mb-2">Ongoing Events</h2>
-          {events.length === 0 ? (
+          {events.filter(e => isMember || e.visibility !== 'private').length === 0 ? (
             <p>No events.</p>
           ) : (
-            <ul className="list-disc list-inside space-y-1">
-              {events.map(e => (
-                <li key={e.id}>
-                  <Link href={`/events/${e.id}`} className="text-blue-600 hover:underline">
-                    {e.name}
+            <div className="space-y-2">
+              {events
+                .filter(e => isMember || e.visibility !== 'private')
+                .map(e => (
+                  <Link key={e.id} href={`/events/${e.id}`}> 
+                    <EventCard event={e} />
                   </Link>
-                </li>
-              ))}
-            </ul>
+                ))}
+            </div>
           )}
           {isAdmin && (
             <div className="mt-2 space-x-2 flex items-center">

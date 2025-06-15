@@ -20,7 +20,14 @@ export async function GET(
     username: p.username,
   }));
   return NextResponse.json({
-    event: { id: event._id.toString(), name: event.name, participants },
+    event: {
+      id: event._id.toString(),
+      name: event.name,
+      status: event.status,
+      visibility: event.visibility,
+      createdAt: event.createdAt,
+      participants,
+    },
   });
 }
 
@@ -54,8 +61,12 @@ export async function PUT(
     !(session.user?.role === 'super-admin' || session.user?.role === 'admin')) {
     return NextResponse.json({ success: false }, { status: 403 });
   }
-  const { name } = await request.json();
+  const { name, status, visibility } = await request.json();
   await connect();
-  await Event.updateOne({ _id: params.id }, { name });
+  const update: any = {};
+  if (name !== undefined) update.name = name;
+  if (status !== undefined) update.status = status;
+  if (visibility !== undefined) update.visibility = visibility;
+  await Event.updateOne({ _id: params.id }, update);
   return NextResponse.json({ success: true });
 }

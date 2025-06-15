@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import EventEdit from '../../../components/EventEdit';
+import dayjs from 'dayjs';
 
 interface Participant {
   id: string;
@@ -18,11 +19,15 @@ export default function EventPage({ params }: { params: { id: string } }) {
   const [name, setName] = useState('');
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [editingName, setEditingName] = useState('');
+  const [statusText, setStatusText] = useState('');
+  const [createdAt, setCreatedAt] = useState('');
 
   const fetchEvent = async () => {
     const res = await axios.get(`/api/events/${params.id}`);
     setName(res.data.event.name);
     setEditingName(res.data.event.name);
+    setStatusText(res.data.event.status);
+    setCreatedAt(res.data.event.createdAt);
     setParticipants(res.data.event.participants);
   };
 
@@ -59,6 +64,10 @@ export default function EventPage({ params }: { params: { id: string } }) {
       ) : (
         <p className="text-xl">{name}</p>
       )}
+      <p className="text-sm text-muted-foreground">Status: {statusText}</p>
+      <p className="text-sm text-muted-foreground">
+        Created: {dayjs(createdAt).format('YYYY-MM-DD HH:mm')}
+      </p>
       <div>
         <h2 className="text-lg mb-2">Participants</h2>
         <ul className="list-disc list-inside space-y-1">
