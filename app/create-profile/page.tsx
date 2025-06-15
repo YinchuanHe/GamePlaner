@@ -3,15 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import Link from 'next/link';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import PageSkeleton from '../../components/PageSkeleton'
+import { useApi } from '../../lib/useApi'
 
 
 export default function CreateProfilePage() {
   const router = useRouter();
   const { data: session } = useSession();
+  const { request, loading, error } = useApi();
 
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -26,13 +28,24 @@ export default function CreateProfilePage() {
 
   const handleSubmit = async () => {
     try {
-      console.log({ session })
-      await axios.post('/api/signup', { email, username });
+      await request({
+        url: '/api/signup',
+        method: 'post',
+        data: { email, username },
+      });
       router.push('/user');
     } catch (e: any) {
       setError('Signup failed. Please try again.');
     }
   };
+
+  if (loading) {
+    return <PageSkeleton />;
+  }
+
+  if (error) {
+    return <div className="p-4">Failed to load.</div>;
+  }
 
   return (
     <div className="mx-auto max-w-xs py-8">

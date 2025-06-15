@@ -2,9 +2,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import axios from 'axios'
 import Link from 'next/link'
 import ClubCard from '../../components/ClubCard'
+import PageSkeleton from '../../components/PageSkeleton'
+import { useApi } from '../../lib/useApi'
 
 interface Club {
   id: string
@@ -19,6 +20,7 @@ interface Club {
 export default function UserPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
+  const { request, loading, error } = useApi()
   const [clubs, setClubs] = useState<Club[]>([])
 
   useEffect(() => {
@@ -28,11 +30,19 @@ export default function UserPage() {
       return
     }
     const fetchClubs = async () => {
-      const res = await axios.get('/api/myclubs')
-      setClubs(res.data.clubs)
+      const res = await request<{ clubs: Club[] }>({ url: '/api/myclubs', method: 'get' })
+      setClubs(res.clubs)
     }
     fetchClubs()
   }, [status, session, router])
+
+  if (status === 'loading' || loading) {
+    return <PageSkeleton />
+  }
+
+  if (error) {
+    return <div className="p-4">Failed to load.</div>
+  }
 
   return (
     <div className="p-4 space-y-2">

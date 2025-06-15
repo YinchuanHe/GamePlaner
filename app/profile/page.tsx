@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import axios from "axios";
+import PageSkeleton from "../../components/PageSkeleton";
+import { useApi } from "../../lib/useApi";
 
 interface ProfileData {
   email: string;
@@ -14,20 +15,29 @@ interface ProfileData {
 
 export default function ProfilePage() {
   const { data: session } = useSession();
+  const { request, loading, error } = useApi();
   const [data, setData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       if (!session?.user?.email) return;
-      const res = await axios.post('/api/profile', {
-        email: session.user.email,
+      const res = await request<ProfileData>({
+        url: '/api/profile',
+        method: 'post',
+        data: { email: session.user.email },
       });
-      setData(res.data);
+      setData(res);
     };
     fetchProfile();
-  }, [session]);
+  }, [session, request]);
 
-  if (!data) return <div className="p-4">Loading...</div>;
+  if (loading || !data) {
+    return <PageSkeleton />;
+  }
+
+  if (error) {
+    return <div className="p-4">Failed to load.</div>;
+  }
 
   return (
     <div className="p-4 space-y-2">

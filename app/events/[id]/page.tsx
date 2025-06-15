@@ -2,10 +2,11 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import EventEdit from '../../../components/EventEdit';
+import PageSkeleton from '../../../components/PageSkeleton'
+import { useApi } from '../../../lib/useApi'
 import dayjs from 'dayjs';
 
 interface Participant {
@@ -16,6 +17,7 @@ interface Participant {
 export default function EventPage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { request, loading, error } = useApi();
   const [name, setName] = useState('');
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [editingName, setEditingName] = useState('');
@@ -23,12 +25,15 @@ export default function EventPage({ params }: { params: { id: string } }) {
   const [createdAt, setCreatedAt] = useState('');
 
   const fetchEvent = async () => {
-    const res = await axios.get(`/api/events/${params.id}`);
-    setName(res.data.event.name);
-    setEditingName(res.data.event.name);
-    setStatusText(res.data.event.status);
-    setCreatedAt(res.data.event.createdAt);
-    setParticipants(res.data.event.participants);
+    const res = await request<{ event: any }>({
+      url: `/api/events/${params.id}`,
+      method: 'get',
+    });
+    setName(res.event.name);
+    setEditingName(res.event.name);
+    setStatusText(res.event.status);
+    setCreatedAt(res.event.createdAt);
+    setParticipants(res.event.participants);
   };
 
   useEffect(() => {
@@ -44,14 +49,26 @@ export default function EventPage({ params }: { params: { id: string } }) {
     session?.user?.role === 'admin' || session?.user?.role === 'super-admin';
 
   const joinEvent = async () => {
-    await axios.post(`/api/events/${params.id}`);
+    await request({ url: `/api/events/${params.id}`, method: 'post' });
     fetchEvent();
   };
 
   const saveName = async () => {
-    await axios.put(`/api/events/${params.id}`, { name: editingName });
+    await request({
+      url: `/api/events/${params.id}`,
+      method: 'put',
+      data: { name: editingName },
+    });
     setName(editingName);
   };
+
+  if (status === 'loading' || loading) {
+    return <PageSkeleton />
+  }
+
+  if (error) {
+    return <div className="p-4">Failed to load.</div>
+  }
 
   return (
     <div className="p-4 space-y-4">

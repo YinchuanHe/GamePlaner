@@ -3,11 +3,12 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import EventCard from '../../../components/EventCard';
 import ClubCard from '../../../components/ClubCard';
+import PageSkeleton from '../../../components/PageSkeleton'
+import { useApi } from '../../../lib/useApi'
 
 interface Member {
   id: string;
@@ -26,6 +27,7 @@ interface EventItem {
 export default function ClubHome({ params }: { params: { id: string } }) {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { request, loading, error } = useApi();
   const [members, setMembers] = useState<Member[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [clubName, setClubName] = useState('');
@@ -44,18 +46,19 @@ export default function ClubHome({ params }: { params: { id: string } }) {
       return;
     }
     const fetchClub = async () => {
-      const res = await axios.get(`/api/clubs/${params.id}`);
-      setMembers(res.data.members);
-      setEvents(res.data.events);
-      setClubName(res.data.club.name);
-      setClubDesc(res.data.club.description || '');
-      setClubLocation(res.data.club.location || '');
-      setClubCreatedBy(res.data.club.createdBy || '');
-      setClubCreatedAt(res.data.club.createdAt || '');
-      setClubLogo(res.data.club.logoUrl || '');
-      setIsMember(
-        res.data.members.some((m: Member) => m.id === session?.user?.id)
-      );
+      const res = await request<{ club: any; members: Member[]; events: EventItem[] }>({
+        url: `/api/clubs/${params.id}`,
+        method: 'get',
+      });
+      setMembers(res.members);
+      setEvents(res.events);
+      setClubName(res.club.name);
+      setClubDesc(res.club.description || '');
+      setClubLocation(res.club.location || '');
+      setClubCreatedBy(res.club.createdBy || '');
+      setClubCreatedAt(res.club.createdAt || '');
+      setClubLogo(res.club.logoUrl || '');
+      setIsMember(res.members.some((m: Member) => m.id === session?.user?.id));
     };
     fetchClub();
   }, [status, session, router, params.id]);
@@ -65,32 +68,50 @@ export default function ClubHome({ params }: { params: { id: string } }) {
   const showEvents = isAdmin || isMember;
 
   const joinClub = async () => {
-    await axios.post(`/api/clubs/${params.id}`);
-    const res = await axios.get(`/api/clubs/${params.id}`);
-    setMembers(res.data.members);
-    setEvents(res.data.events);
-    setClubName(res.data.club.name);
-    setClubDesc(res.data.club.description || '');
-    setClubLocation(res.data.club.location || '');
-    setClubCreatedBy(res.data.club.createdBy || '');
-    setClubCreatedAt(res.data.club.createdAt || '');
-    setClubLogo(res.data.club.logoUrl || '');
-    setIsMember(res.data.members.some((m: Member) => m.id === session?.user?.id));
+    await request({ url: `/api/clubs/${params.id}`, method: 'post' });
+    const res = await request<{ club: any; members: Member[]; events: EventItem[] }>({
+      url: `/api/clubs/${params.id}`,
+      method: 'get',
+    });
+    setMembers(res.members);
+    setEvents(res.events);
+    setClubName(res.club.name);
+    setClubDesc(res.club.description || '');
+    setClubLocation(res.club.location || '');
+    setClubCreatedBy(res.club.createdBy || '');
+    setClubCreatedAt(res.club.createdAt || '');
+    setClubLogo(res.club.logoUrl || '');
+    setIsMember(res.members.some((m: Member) => m.id === session?.user?.id));
   };
 
   const createEvent = async () => {
     if (!newEventName) return;
-    await axios.post('/api/events', { name: newEventName, clubId: params.id });
+    await request({
+      url: '/api/events',
+      method: 'post',
+      data: { name: newEventName, clubId: params.id },
+    });
     setNewEventName('');
-    const res = await axios.get(`/api/clubs/${params.id}`);
-    setEvents(res.data.events);
-    setClubName(res.data.club.name);
-    setClubDesc(res.data.club.description || '');
-    setClubLocation(res.data.club.location || '');
-    setClubCreatedBy(res.data.club.createdBy || '');
-    setClubCreatedAt(res.data.club.createdAt || '');
-    setClubLogo(res.data.club.logoUrl || '');
+    const res = await request<{ club: any; events: EventItem[] }>({
+      url: `/api/clubs/${params.id}`,
+      method: 'get',
+    });
+    setEvents(res.events);
+    setClubName(res.club.name);
+    setClubDesc(res.club.description || '');
+    setClubLocation(res.club.location || '');
+    setClubCreatedBy(res.club.createdBy || '');
+    setClubCreatedAt(res.club.createdAt || '');
+    setClubLogo(res.club.logoUrl || '');
   };
+
+  if (status === 'loading' || loading) {
+    return <PageSkeleton />
+  }
+
+  if (error) {
+    return <div className="p-4">Failed to load.</div>
+  }
 
   return (
     <div className="p-4 space-y-4">
