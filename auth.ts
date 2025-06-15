@@ -66,8 +66,8 @@ export const authOptions: NextAuthOptions = {
       if (url.startsWith(`${baseUrl}/create-profile`)) {
         return url;
       }
-      // Otherwise, send to /profile
-      return `${baseUrl}/profile`;
+      // Otherwise, send to /user
+      return `${baseUrl}/user`;
     },
   },
 }
