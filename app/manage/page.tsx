@@ -1,8 +1,9 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import axios from 'axios';
+import PageSkeleton from '../../components/PageSkeleton'
+import { useApi } from '../../lib/useApi'
 import {
   Select,
   SelectTrigger,
@@ -33,32 +34,37 @@ interface ClubOption {
 export default function ManagePage() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const { request, loading, error } = useApi();
   const [users, setUsers] = useState<User[]>([]);
   const [clubName, setClubName] = useState('');
   const [eventName, setEventName] = useState('');
   const [clubs, setClubs] = useState<ClubOption[]>([]);
   const [selectedClub, setSelectedClub] = useState<string>('');
 
-  const fetchUsers = async () => {
-    const res = await axios.get('/api/users');
-    setUsers(res.data.users);
-  };
+  const fetchUsers = useCallback(async () => {
+    const res = await request<{ users: User[] }>({ url: '/api/users', method: 'get' });
+    setUsers(res.users);
+  }, [request]);
 
   const handleRoleChange = async (username: string, newRole: string) => {
-    await axios.put('/api/users', { username, role: newRole });
+    await request({
+      url: '/api/users',
+      method: 'put',
+      data: { username, role: newRole },
+    });
     setUsers(prev => prev.map(u => (u.username === username ? { ...u, role: newRole } : u)));
   };
 
   const handleCreateClub = async () => {
-    await axios.post('/api/clubs', { name: clubName });
+    await request({ url: '/api/clubs', method: 'post', data: { name: clubName } });
     setClubName('');
     fetchClubs();
   };
 
-  const fetchClubs = async () => {
-    const res = await axios.get('/api/clubs');
+  const fetchClubs = useCallback(async () => {
+    const res = await request<{ clubs: any[] }>({ url: '/api/clubs', method: 'get' });
     setClubs(
-      res.data.clubs.map((c: any) => ({
+      res.clubs.map((c: any) => ({
         id: c._id || c.id,
         name: c.name,
         description: c.description,
@@ -68,11 +74,15 @@ export default function ManagePage() {
         createdAt: c.createdAt,
       }))
     );
-  };
+  }, [request]);
 
   const handleCreateEvent = async () => {
     if (!selectedClub) return;
-    await axios.post('/api/events', { name: eventName, clubId: selectedClub });
+    await request({
+      url: '/api/events',
+      method: 'post',
+      data: { name: eventName, clubId: selectedClub },
+    });
     setEventName('');
   };
 
@@ -88,7 +98,15 @@ export default function ManagePage() {
     }
     fetchUsers();
     fetchClubs();
-  }, [status, session, router]);
+  }, [status, session, router, fetchUsers, fetchClubs]);
+
+  if (status === 'loading' || loading) {
+    return <PageSkeleton />
+  }
+
+  if (error) {
+    return <div className="p-4">Failed to load.</div>
+  }
 
   return (
     <div className="container mx-auto mt-8">
