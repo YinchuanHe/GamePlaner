@@ -1,0 +1,27 @@
+'use client'
+import dayjs from 'dayjs'
+
+export interface EventCardProps {
+  event: {
+    id: string
+    name: string
+    status: string
+    createdAt: string
+    participantCount?: number
+  }
+}
+
+export default function EventCard({ event }: EventCardProps) {
+  return (
+    <div className="border rounded-md p-4 space-y-1">
+      <h3 className="text-lg font-semibold">{event.name}</h3>
+      <p className="text-sm text-muted-foreground">Status: {event.status}</p>
+      <p className="text-sm text-muted-foreground">
+        Created: {dayjs(event.createdAt).format('YYYY-MM-DD HH:mm')}
+      </p>
+      <p className="text-sm text-muted-foreground">
+        Members: {event.participantCount ?? 0}
+      </p>
+    </div>
+  )
+}
