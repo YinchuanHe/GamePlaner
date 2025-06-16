@@ -2,12 +2,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Input } from '../../../components/ui/input';
-import { Button } from '../../../components/ui/button';
-import EventEdit from '../../../components/EventEdit';
+import { Button } from '../../../components/ui/button'
 import PageSkeleton from '../../../components/PageSkeleton'
 import { useApi } from '../../../lib/useApi'
-import UserCard from '../../../components/UserCard'
+import EventContent from '../../../components/EventContent'
 import StepIndicator, {
   EVENT_STEPS,
   EventStep,
@@ -31,6 +29,8 @@ export default function EventPage({ params }: { params: { id: string } }) {
   const [editingGameStyle, setEditingGameStyle] = useState('');
   const [editingRegEnd, setEditingRegEnd] = useState('');
   const [editingLocation, setEditingLocation] = useState('');
+  const [editingMaxPoint, setEditingMaxPoint] = useState('');
+  const [editingCourtCount, setEditingCourtCount] = useState('');
   const [statusText, setStatusText] = useState<EventStep>('preparing');
   const [visibility, setVisibility] = useState('');
   const [createdAt, setCreatedAt] = useState('');
@@ -39,6 +39,8 @@ export default function EventPage({ params }: { params: { id: string } }) {
   const [clubId, setClubId] = useState('');
   const [location, setLocation] = useState('');
   const [gameStyle, setGameStyle] = useState('');
+  const [maxPoint, setMaxPoint] = useState('');
+  const [courtCount, setCourtCount] = useState('');
   const [isParticipant, setIsParticipant] = useState(false);
 
   const fetchEvent = useCallback(async () => {
@@ -53,6 +55,12 @@ export default function EventPage({ params }: { params: { id: string } }) {
     setGameStyle(res.event.gameStyle || '');
     setEditingRegEnd(res.event.registrationEndTime ? dayjs(res.event.registrationEndTime).format('YYYY-MM-DDTHH:mm') : '');
     setEditingLocation(res.event.location || '');
+    setEditingMaxPoint(
+      res.event.maxPoint !== undefined ? String(res.event.maxPoint) : ''
+    );
+    setEditingCourtCount(
+      res.event.courtCount !== undefined ? String(res.event.courtCount) : ''
+    );
     setStatusText(res.event.status);
     setVisibility(res.event.visibility);
     setCreatedAt(res.event.createdAt);
@@ -60,6 +68,8 @@ export default function EventPage({ params }: { params: { id: string } }) {
     setClubName(res.event.clubName || '');
     setClubId(res.event.club || '');
     setLocation(res.event.location || '');
+    setMaxPoint(res.event.maxPoint !== undefined ? String(res.event.maxPoint) : '');
+    setCourtCount(res.event.courtCount !== undefined ? String(res.event.courtCount) : '');
     setParticipants(res.event.participants);
     if (session?.user?.id) {
       setIsParticipant(res.event.participants.some((p: any) => p.id === session.user?.id));
@@ -106,6 +116,8 @@ export default function EventPage({ params }: { params: { id: string } }) {
         gameStyle: editingGameStyle,
         registrationEndTime: editingRegEnd || undefined,
         location: editingLocation,
+        maxPoint: editingMaxPoint ? Number(editingMaxPoint) : undefined,
+        courtCount: editingCourtCount ? Number(editingCourtCount) : undefined,
       },
     });
     setName(editingName);
@@ -113,6 +125,8 @@ export default function EventPage({ params }: { params: { id: string } }) {
     setGameStyle(editingGameStyle);
     setRegistrationEndTime(editingRegEnd);
     setLocation(editingLocation);
+    setMaxPoint(editingMaxPoint);
+    setCourtCount(editingCourtCount);
   };
 
   const steps: EventStep[] = [...EVENT_STEPS];
@@ -151,6 +165,19 @@ export default function EventPage({ params }: { params: { id: string } }) {
     fetchEvent();
   };
 
+  const generateMatches = async () => {
+    // placeholder for match generation API
+    await request({
+      url: `/api/events/${params.id}/draws`,
+      method: 'post',
+      data: {
+        gameStyle: editingGameStyle,
+        maxPoint: editingMaxPoint ? Number(editingMaxPoint) : undefined,
+        courtCount: editingCourtCount ? Number(editingCourtCount) : undefined,
+      },
+    });
+  };
+
   if (status === 'loading' || loading) {
     return <PageSkeleton />
   }
@@ -173,34 +200,7 @@ export default function EventPage({ params }: { params: { id: string } }) {
           </Button>
         </div>
       )}
-      {isAdmin ? (
-        <div className="space-x-2">
-          <Input value={editingName} onChange={e => setEditingName(e.target.value)} />
-          <Input
-            value={editingVisibility}
-            onChange={e => setEditingVisibility(e.target.value)}
-            placeholder="visibility"
-          />
-          <Input
-            value={editingGameStyle}
-            onChange={e => setEditingGameStyle(e.target.value)}
-            placeholder="game style"
-          />
-          <Input
-            type="datetime-local"
-            value={editingRegEnd}
-            onChange={e => setEditingRegEnd(e.target.value)}
-          />
-          <Input
-            value={editingLocation}
-            onChange={e => setEditingLocation(e.target.value)}
-            placeholder="location"
-          />
-          <Button onClick={saveInfo}>Save</Button>
-        </div>
-      ) : (
-        <p className="text-xl">{name}</p>
-      )}
+      <p className="text-xl">{name}</p>
       {clubName && (
         <p className="text-sm text-muted-foreground">Host: {clubName}</p>
       )}
@@ -216,24 +216,29 @@ export default function EventPage({ params }: { params: { id: string } }) {
       <p className="text-sm text-muted-foreground">
         Created: {dayjs(createdAt).format('YYYY-MM-DD HH:mm')}
       </p>
-      <div>
-        <h2 className="text-lg mb-2">Participants</h2>
-        <div className="space-y-1">
-          {participants.map(p => (
-            <div key={p.id} className="flex items-center justify-between">
-              <UserCard user={p} />
-              {isAdmin && statusText === 'registration' && (
-                <Button variant="ghost" onClick={() => removeParticipant(p.id)}>
-                  Remove
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-      {canRegister && (
-        <Button onClick={joinEvent}>Register</Button>
-      )}
+      {canRegister && <Button onClick={joinEvent}>Register</Button>}
+      <EventContent
+        status={statusText}
+        isAdmin={isAdmin}
+        participants={participants}
+        editingName={editingName}
+        setEditingName={setEditingName}
+        editingVisibility={editingVisibility}
+        setEditingVisibility={setEditingVisibility}
+        editingGameStyle={editingGameStyle}
+        setEditingGameStyle={setEditingGameStyle}
+        editingRegEnd={editingRegEnd}
+        setEditingRegEnd={setEditingRegEnd}
+        editingLocation={editingLocation}
+        setEditingLocation={setEditingLocation}
+        editingMaxPoint={editingMaxPoint}
+        setEditingMaxPoint={setEditingMaxPoint}
+        editingCourtCount={editingCourtCount}
+        setEditingCourtCount={setEditingCourtCount}
+        saveInfo={saveInfo}
+        removeParticipant={removeParticipant}
+        generateMatches={generateMatches}
+      />
     </div>
   );
 }
