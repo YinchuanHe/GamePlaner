@@ -130,7 +130,6 @@ export default function EventPage({ params }: { params: { id: string } }) {
           ))}
         </ul>
       </div>
-      {isAdmin && <EventEdit />}
       {canRegister && (
         <Button onClick={joinEvent}>Register</Button>
       )}
