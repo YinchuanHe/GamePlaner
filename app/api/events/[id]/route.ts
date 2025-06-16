@@ -29,6 +29,10 @@ export async function GET(
       visibility: event.visibility,
       registrationEndTime: event.registrationEndTime,
       location: event.location,
+      gameStyle: event.gameStyle,
+      maxPoint: event.maxPoint,
+      courtCount: event.courtCount,
+      umpires: event.umpires,
       club: event.club?._id ? event.club._id.toString() : null,
       clubName: event.club?.name || null,
       createdAt: event.createdAt,
@@ -80,7 +84,17 @@ export async function PUT(
     !(session.user?.role === 'super-admin' || session.user?.role === 'admin')) {
     return NextResponse.json({ success: false }, { status: 403 });
   }
-  const { name, status, visibility, registrationEndTime, location } = await request.json();
+  const {
+    name,
+    status,
+    visibility,
+    registrationEndTime,
+    location,
+    gameStyle,
+    maxPoint,
+    courtCount,
+    umpires,
+  } = await request.json();
   await connect();
   const update: any = {};
   if (name !== undefined) update.name = name;
@@ -88,6 +102,10 @@ export async function PUT(
   if (visibility !== undefined) update.visibility = visibility;
   if (registrationEndTime !== undefined) update.registrationEndTime = registrationEndTime;
   if (location !== undefined) update.location = location;
+  if (gameStyle !== undefined) update.gameStyle = gameStyle;
+  if (maxPoint !== undefined) update.maxPoint = maxPoint;
+  if (courtCount !== undefined) update.courtCount = courtCount;
+  if (umpires !== undefined) update.umpires = umpires;
   await Event.updateOne({ _id: params.id }, update);
   return NextResponse.json({ success: true });
 }
