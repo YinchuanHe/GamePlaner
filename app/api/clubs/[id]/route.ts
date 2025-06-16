@@ -20,8 +20,10 @@ export async function GET(
     return NextResponse.json({ success: false }, { status: 404 });
   }
   const memberIds = club.members.map((m: any) => m.id);
-  const members: any[] = await User.find({ _id: { $in: memberIds } }, { username: 1 })
-    .lean();
+  const members: any[] = await User.find(
+    { _id: { $in: memberIds } },
+    { username: 1, image: 1 }
+  ).lean();
   const events: any[] = await Event.find({ club: params.id }, {
     name: 1,
     status: 1,
@@ -41,7 +43,11 @@ export async function GET(
       createdBy: club.createdBy,
       createdAt: club.createdAt,
     },
-    members: members.map(m => ({ id: m._id.toString(), username: m.username })),
+    members: members.map(m => ({
+      id: m._id.toString(),
+      username: m.username,
+      image: m.image || null,
+    })),
     events: events.map(e => ({
       id: e._id.toString(),
       name: e.name,

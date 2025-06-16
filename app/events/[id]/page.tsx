@@ -7,11 +7,13 @@ import { Button } from '../../../components/ui/button';
 import EventEdit from '../../../components/EventEdit';
 import PageSkeleton from '../../../components/PageSkeleton'
 import { useApi } from '../../../lib/useApi'
+import UserCard from '../../../components/UserCard'
 import dayjs from 'dayjs';
 
 interface Participant {
   id: string;
   username: string;
+  image?: string | null;
 }
 
 export default function EventPage({ params }: { params: { id: string } }) {
@@ -124,11 +126,11 @@ export default function EventPage({ params }: { params: { id: string } }) {
       </p>
       <div>
         <h2 className="text-lg mb-2">Participants</h2>
-        <ul className="list-disc list-inside space-y-1">
+        <div className="space-y-1">
           {participants.map(p => (
-            <li key={p.id}>{p.username}</li>
+            <UserCard key={p.id} user={p} />
           ))}
-        </ul>
+        </div>
       </div>
       {canRegister && (
         <Button onClick={joinEvent}>Register</Button>
