@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   await connect();
 
   const query = email ? { email } : { username };
-  const user = await User.findOne(query).populate({ path: 'club', strictPopulate: false });
+  const user = await User.findOne(query).populate({ path: 'clubs', strictPopulate: false });
 
   if (!user) {
     return NextResponse.json({ success: false }, { status: 404 });
@@ -28,6 +28,8 @@ export async function POST(request: Request) {
     username: user.username,
     role: user.role,
     image: user.image,
-    club: user.club ? (user.club as any).name : null,
+    clubs: Array.isArray(user.clubs)
+      ? (user.clubs as any[]).map(c => c.name)
+      : [],
   });
 }

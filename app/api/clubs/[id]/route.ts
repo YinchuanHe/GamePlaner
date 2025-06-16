@@ -26,6 +26,8 @@ export async function GET(
     name: 1,
     status: 1,
     visibility: 1,
+    registrationEndTime: 1,
+    location: 1,
     createdAt: 1,
     participants: 1,
   }).lean();
@@ -45,6 +47,8 @@ export async function GET(
       name: e.name,
       status: e.status,
       visibility: e.visibility,
+      registrationEndTime: e.registrationEndTime,
+      location: e.location,
       createdAt: e.createdAt,
       participantCount: e.participants.length,
     })),
@@ -74,8 +78,9 @@ export async function POST(
     club.members.push({ id: user._id, username });
     await club.save();
   }
-  if (!user.club) {
-    user.club = club._id;
+  if (!Array.isArray(user.clubs)) user.clubs = [];
+  if (!user.clubs.some((c: any) => c.toString() === club._id.toString())) {
+    user.clubs.push(club._id);
     await user.save();
   }
   return NextResponse.json({ success: true });

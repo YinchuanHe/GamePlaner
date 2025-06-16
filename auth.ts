@@ -12,6 +12,7 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       role?: string | null;
+      clubs?: string[];
     };
   }
 }
@@ -21,6 +22,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
     role?: string | null;
+    clubs?: string[];
   }
 }
 
@@ -34,20 +36,27 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.AUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
-      if (user) {
-        const dbUser = await User.findOne({ email: user.email });
-        token.id = dbUser!._id.toString();
-        token.role = dbUser?.role || null
+      await connect();
+      let dbUser = null;
+      if (user && user.email) {
+        dbUser = await User.findOne({ email: user.email });
+      } else if (token.id) {
+        dbUser = await User.findById(token.id);
       }
-      return token
+      if (dbUser) {
+        token.id = dbUser._id.toString();
+        token.role = dbUser.role || null;
+        token.clubs = dbUser.clubs ? dbUser.clubs.map((c: any) => c.toString()) : [];
+      }
+      return token;
     },
     async session({ session, token }) {
-      if (token.id && session.user) session.user.id = token.id as string
       if (session.user) {
-        session.user.id = token.id;
+        if (token.id) session.user.id = token.id as string;
         session.user.role = (token.role as string) || null;
+        session.user.clubs = (token.clubs as string[]) || [];
       }
-      return session
+      return session;
     },
     async signIn({ user }) {
       await connect();
@@ -60,6 +69,7 @@ export const authOptions: NextAuthOptions = {
         await User.create({
           email: user.email,
           image: user.image,
+          clubs: [],
         });
       }
       // Redirect new users to create-profile

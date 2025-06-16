@@ -38,8 +38,11 @@ export async function POST(request: Request) {
   });
   // also store the club reference on user for convenience
   if (user) {
-    user.club = club._id;
-    await user.save();
+    if (!Array.isArray(user.clubs)) user.clubs = [];
+    if (!user.clubs.some((c: any) => c.toString() === club._id.toString())) {
+      user.clubs.push(club._id);
+      await user.save();
+    }
   }
   return NextResponse.json({ success: true });
 }

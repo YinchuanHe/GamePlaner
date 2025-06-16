@@ -22,6 +22,9 @@ interface EventItem {
   createdAt: string;
   participantCount?: number;
   visibility: string;
+  registrationEndTime?: string;
+  location?: string;
+  clubName?: string | null;
 }
 
 export default function ClubHome({ params }: { params: { id: string } }) {
@@ -51,7 +54,7 @@ export default function ClubHome({ params }: { params: { id: string } }) {
         method: 'get',
       });
       setMembers(res.members);
-      setEvents(res.events);
+      setEvents(res.events.map(e => ({ ...e, clubName: res.club.name })));
       setClubName(res.club.name);
       setClubDesc(res.club.description || '');
       setClubLocation(res.club.location || '');
@@ -74,7 +77,7 @@ export default function ClubHome({ params }: { params: { id: string } }) {
       method: 'get',
     });
     setMembers(res.members);
-    setEvents(res.events);
+    setEvents(res.events.map(e => ({ ...e, clubName: res.club.name })));
     setClubName(res.club.name);
     setClubDesc(res.club.description || '');
     setClubLocation(res.club.location || '');
@@ -96,7 +99,7 @@ export default function ClubHome({ params }: { params: { id: string } }) {
       url: `/api/clubs/${params.id}`,
       method: 'get',
     });
-    setEvents(res.events);
+    setEvents(res.events.map(e => ({ ...e, clubName: res.club.name })));
     setClubName(res.club.name);
     setClubDesc(res.club.description || '');
     setClubLocation(res.club.location || '');

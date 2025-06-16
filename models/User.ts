@@ -8,7 +8,7 @@ const userSchema = new Schema({
     enum: ['super-admin', 'admin', 'member'],
     default: 'member',
   },
-  club: { type: Schema.Types.ObjectId, ref: 'Club' },
+  clubs: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
   image: { type: String },
 });
 

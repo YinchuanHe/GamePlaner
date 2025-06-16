@@ -10,7 +10,7 @@ interface ProfileData {
   username?: string;
   role?: string;
   image?: string | null;
-  club?: string | null;
+  clubs?: string[];
 }
 
 export default function ProfilePage() {
@@ -65,9 +65,9 @@ export default function ProfilePage() {
           <strong>Role:</strong> {data.role}
         </p>
       )}
-      {data.club && (
+      {data.clubs && data.clubs.length > 0 && (
         <p>
-          <strong>Club:</strong> {data.club}
+          <strong>Clubs:</strong> {data.clubs.join(', ')}
         </p>
       )}
     </div>
