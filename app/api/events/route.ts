@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../auth';
 import connect from '../../../utils/mongoose';
 import Event from '../../../models/Event';
+import mongoose from 'mongoose';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -12,7 +13,9 @@ export async function GET() {
   if (!session) {
     query.visibility = { $ne: 'private' };
   } else if (session.user?.role !== 'super-admin') {
-    const clubIds = session.user.clubs || [];
+    const clubIds = (session.user.clubs || []).map(id =>
+      new mongoose.Types.ObjectId(id)
+    );
     query = {
       $or: [{ visibility: { $ne: 'private' } }, { club: { $in: clubIds } }],
     };
