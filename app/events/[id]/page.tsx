@@ -178,10 +178,6 @@ export default function EventPage({ params }: { params: { id: string } }) {
     });
   };
 
-  if (status === 'loading' || loading) {
-    return <PageSkeleton />
-  }
-
   if (error) {
     return <div className="p-4">Failed to load.</div>
   }

@@ -94,7 +94,7 @@ export default function ClubHome({ params }: { params: { id: string } }) {
     await request({
       url: '/api/events',
       method: 'post',
-      data: { name: newEventName, clubId: params.id },
+      data: { name: newEventName, clubId: params.id, status: 'preparing', visibility: 'private' },
     });
     setNewEventName('');
     const res = await request<{ club: any; events: EventItem[] }>({
