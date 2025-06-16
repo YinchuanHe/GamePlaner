@@ -7,12 +7,14 @@ import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import EventCard from '../../../components/EventCard';
 import ClubCard from '../../../components/ClubCard';
+import UserCard from '../../../components/UserCard';
 import PageSkeleton from '../../../components/PageSkeleton'
 import { useApi } from '../../../lib/useApi'
 
 interface Member {
   id: string;
   username: string;
+  image?: string | null;
 }
 
 interface EventItem {
@@ -160,11 +162,11 @@ export default function ClubHome({ params }: { params: { id: string } }) {
       )}
       <div>
         <h2 className="text-xl mb-2">Members</h2>
-        <ul className="list-disc list-inside space-y-1">
+        <div className="space-y-1">
           {members?.map(m => (
-            <li key={m.id}>{m.username}</li>
+            <UserCard key={m.id} user={m} />
           ))}
-        </ul>
+        </div>
       </div>
       {!isMember && (
         <Button onClick={joinClub}>Join us!</Button>
