@@ -17,6 +17,10 @@ const eventSchema = new Schema(
     },
     registrationEndTime: { type: Date, required: false },
     location: { type: String },
+    gameStyle: { type: String },
+    maxPoint: { type: Number },
+    courtCount: { type: Number },
+    umpires: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true },
 );

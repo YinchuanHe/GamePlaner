@@ -25,6 +25,9 @@ export async function GET() {
     visibility: 1,
     registrationEndTime: 1,
     location: 1,
+    gameStyle: 1,
+    maxPoint: 1,
+    courtCount: 1,
     createdAt: 1,
     participants: 1,
   }).populate('club', 'name');
@@ -39,6 +42,9 @@ export async function GET() {
       visibility: e.visibility,
       registrationEndTime: e.registrationEndTime,
       location: e.location,
+      gameStyle: e.gameStyle,
+      maxPoint: e.maxPoint,
+      courtCount: e.courtCount,
       createdAt: e.createdAt,
       participantCount: e.participants.length,
     })),
@@ -55,8 +61,30 @@ export async function POST(request: Request) {
   ) {
     return NextResponse.json({ success: false }, { status: 403 });
   }
-  const { name, clubId, status, visibility, registrationEndTime, location } = await request.json();
+  const {
+    name,
+    clubId,
+    status,
+    visibility,
+    registrationEndTime,
+    location,
+    gameStyle,
+    maxPoint,
+    courtCount,
+    umpires,
+  } = await request.json();
   await connect();
-  await Event.create({ name, club: clubId, status, visibility, registrationEndTime, location });
+  await Event.create({
+    name,
+    club: clubId,
+    status,
+    visibility,
+    registrationEndTime,
+    location,
+    gameStyle,
+    maxPoint,
+    courtCount,
+    umpires,
+  });
   return NextResponse.json({ success: true });
 }
