@@ -8,6 +8,10 @@ import EventEdit from '../../../components/EventEdit';
 import PageSkeleton from '../../../components/PageSkeleton'
 import { useApi } from '../../../lib/useApi'
 import UserCard from '../../../components/UserCard'
+import StepIndicator, {
+  EVENT_STEPS,
+  EventStep,
+} from '../../../components/StepIndicator'
 import dayjs from 'dayjs';
 
 interface Participant {
@@ -23,13 +27,18 @@ export default function EventPage({ params }: { params: { id: string } }) {
   const [name, setName] = useState('');
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [editingName, setEditingName] = useState('');
-  const [statusText, setStatusText] = useState('');
+  const [editingVisibility, setEditingVisibility] = useState('');
+  const [editingGameStyle, setEditingGameStyle] = useState('');
+  const [editingRegEnd, setEditingRegEnd] = useState('');
+  const [editingLocation, setEditingLocation] = useState('');
+  const [statusText, setStatusText] = useState<EventStep>('preparing');
   const [visibility, setVisibility] = useState('');
   const [createdAt, setCreatedAt] = useState('');
   const [registrationEndTime, setRegistrationEndTime] = useState('');
   const [clubName, setClubName] = useState('');
   const [clubId, setClubId] = useState('');
   const [location, setLocation] = useState('');
+  const [gameStyle, setGameStyle] = useState('');
   const [isParticipant, setIsParticipant] = useState(false);
 
   const fetchEvent = useCallback(async () => {
@@ -39,6 +48,11 @@ export default function EventPage({ params }: { params: { id: string } }) {
     });
     setName(res.event.name);
     setEditingName(res.event.name);
+    setEditingVisibility(res.event.visibility || '');
+    setEditingGameStyle(res.event.gameStyle || '');
+    setGameStyle(res.event.gameStyle || '');
+    setEditingRegEnd(res.event.registrationEndTime ? dayjs(res.event.registrationEndTime).format('YYYY-MM-DDTHH:mm') : '');
+    setEditingLocation(res.event.location || '');
     setStatusText(res.event.status);
     setVisibility(res.event.visibility);
     setCreatedAt(res.event.createdAt);
@@ -81,13 +95,60 @@ export default function EventPage({ params }: { params: { id: string } }) {
     fetchEvent();
   };
 
-  const saveName = async () => {
+
+  const saveInfo = async () => {
     await request({
       url: `/api/events/${params.id}`,
       method: 'put',
-      data: { name: editingName },
+      data: {
+        name: editingName,
+        visibility: editingVisibility,
+        gameStyle: editingGameStyle,
+        registrationEndTime: editingRegEnd || undefined,
+        location: editingLocation,
+      },
     });
     setName(editingName);
+    setVisibility(editingVisibility);
+    setGameStyle(editingGameStyle);
+    setRegistrationEndTime(editingRegEnd);
+    setLocation(editingLocation);
+  };
+
+  const steps: EventStep[] = [...EVENT_STEPS];
+
+  const nextStep = async () => {
+    const idx = steps.indexOf(statusText);
+    if (idx < steps.length - 1) {
+      const newStatus = steps[idx + 1];
+      await request({
+        url: `/api/events/${params.id}`,
+        method: 'put',
+        data: { status: newStatus },
+      });
+      setStatusText(newStatus);
+    }
+  };
+
+  const prevStep = async () => {
+    const idx = steps.indexOf(statusText);
+    if (idx > 0) {
+      const newStatus = steps[idx - 1];
+      await request({
+        url: `/api/events/${params.id}`,
+        method: 'put',
+        data: { status: newStatus },
+      });
+      setStatusText(newStatus);
+    }
+  };
+
+  const removeParticipant = async (userId: string) => {
+    await request({
+      url: `/api/events/${params.id}?participantId=${userId}`,
+      method: 'delete',
+    });
+    fetchEvent();
   };
 
   if (status === 'loading' || loading) {
@@ -101,10 +162,41 @@ export default function EventPage({ params }: { params: { id: string } }) {
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-2xl font-semibold">Event</h1>
+      <StepIndicator step={statusText} />
+      {isAdmin && (
+        <div className="flex space-x-2 mb-4">
+          <Button onClick={prevStep} disabled={statusText === steps[0]}>
+            Previous
+          </Button>
+          <Button onClick={nextStep} disabled={statusText === steps[steps.length - 1]}>
+            Next
+          </Button>
+        </div>
+      )}
       {isAdmin ? (
         <div className="space-x-2">
           <Input value={editingName} onChange={e => setEditingName(e.target.value)} />
-          <Button onClick={saveName}>Save</Button>
+          <Input
+            value={editingVisibility}
+            onChange={e => setEditingVisibility(e.target.value)}
+            placeholder="visibility"
+          />
+          <Input
+            value={editingGameStyle}
+            onChange={e => setEditingGameStyle(e.target.value)}
+            placeholder="game style"
+          />
+          <Input
+            type="datetime-local"
+            value={editingRegEnd}
+            onChange={e => setEditingRegEnd(e.target.value)}
+          />
+          <Input
+            value={editingLocation}
+            onChange={e => setEditingLocation(e.target.value)}
+            placeholder="location"
+          />
+          <Button onClick={saveInfo}>Save</Button>
         </div>
       ) : (
         <p className="text-xl">{name}</p>
@@ -128,7 +220,14 @@ export default function EventPage({ params }: { params: { id: string } }) {
         <h2 className="text-lg mb-2">Participants</h2>
         <div className="space-y-1">
           {participants.map(p => (
-            <UserCard key={p.id} user={p} />
+            <div key={p.id} className="flex items-center justify-between">
+              <UserCard user={p} />
+              {isAdmin && statusText === 'registration' && (
+                <Button variant="ghost" onClick={() => removeParticipant(p.id)}>
+                  Remove
+                </Button>
+              )}
+            </div>
           ))}
         </div>
       </div>
