@@ -8,9 +8,11 @@ export default withAuth({
       if (
         path.startsWith('/manage') ||
         path.startsWith('/api/users') ||
-        path === '/api/clubs' ||
-        path.startsWith('/api/events')
+        path === '/api/clubs'
       ) {
+        return token.role === 'super-admin'
+      }
+      if (path.startsWith('/api/events') && req.method !== 'GET') {
         return token.role === 'super-admin'
       }
       if (path.startsWith('/event-edit')) {
