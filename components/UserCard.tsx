@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image'
+import Avatar from 'boring-avatars'
 
 export interface UserCardProps {
   user: {
@@ -21,7 +22,7 @@ export default function UserCard({ user }: UserCardProps) {
           className="rounded-full object-cover"
         />
       ) : (
-        <div className="w-8 h-8 rounded-full bg-gray-300" />
+        <Avatar size={32} name={user.username} variant="beam" />
       )}
       <span>{user.username}</span>
     </div>

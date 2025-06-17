@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
@@ -13,18 +13,22 @@ import { useApi } from '../../lib/useApi'
 export default function CreateProfilePage() {
   const router = useRouter();
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const { request, loading, error: apiError } = useApi();
 
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
 
-  // Populate email from NextAuth session
+  // Populate email from NextAuth session or query param
   useEffect(() => {
     if (session?.user?.email) {
       setEmail(session.user.email);
+    } else {
+      const param = searchParams.get('email');
+      if (param) setEmail(param);
     }
-  }, [session]);
+  }, [session, searchParams]);
 
   const handleSubmit = async () => {
     try {
@@ -33,7 +37,7 @@ export default function CreateProfilePage() {
         method: 'post',
         data: { email, username },
       });
-      router.push('/user');
+      router.push('/login');
     } catch (e: any) {
       setError('Signup failed. Please try again.');
     }
