@@ -1,5 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
+import CredentialsProvider from "next-auth/providers/credentials"
+import bcrypt from "bcryptjs"
 import connect from "@/utils/mongoose";
 import User from "@/models/User";
 
@@ -28,6 +30,22 @@ declare module "next-auth/jwt" {
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'text' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
+        await connect();
+        const user = await User.findOne({ email: credentials.email });
+        if (!user || !user.password) return null;
+        const valid = await bcrypt.compare(credentials.password, user.password);
+        if (!valid) return null;
+        return { id: user._id.toString(), email: user.email, name: user.username };
+      },
+    }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,

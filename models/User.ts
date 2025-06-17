@@ -10,6 +10,7 @@ const userSchema = new Schema({
   },
   clubs: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
   image: { type: String },
+  password: { type: String },
 });
 
 export default models.User || model('User', userSchema);
