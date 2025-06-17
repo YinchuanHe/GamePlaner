@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Avatar from "boring-avatars";
 import PageSkeleton from "../../components/PageSkeleton";
 import { useApi } from "../../lib/useApi";
 
@@ -42,16 +43,18 @@ export default function ProfilePage() {
   return (
     <div className="p-4 space-y-2">
       <h1 className="text-2xl mb-4">Profile</h1>
-      {data.image && (
-  <Image
-    src={data.image}
-    alt="Profile picture"
-    width={96}
-    height={96}
-    className="rounded-full"
-    priority
-  />
-)}
+      {data.image ? (
+        <Image
+          src={data.image}
+          alt="Profile picture"
+          width={96}
+          height={96}
+          className="rounded-full"
+          priority
+        />
+      ) : (
+        <Avatar size={96} name={data.username || data.email} variant="beam" />
+      )}
       <p>
         <strong>Email:</strong> {data.email}
       </p>

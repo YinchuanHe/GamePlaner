@@ -43,7 +43,7 @@ export default function SignupPage() {
         method: 'post',
         data: { email, password },
       });
-      router.push('/login');
+      router.push(`/create-profile?email=${encodeURIComponent(email)}`);
     } catch {
       setError('Signup failed.');
     }
