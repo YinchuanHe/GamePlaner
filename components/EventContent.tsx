@@ -2,6 +2,13 @@
 import { useState } from 'react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from './ui/select'
 import UserCard from './UserCard'
 import { EventStep } from './StepIndicator'
 
@@ -59,13 +66,18 @@ export default function EventContent({
   const [activeTab, setActiveTab] = useState<'draw' | 'ranking' | 'umpire'>('draw')
 
   const form = (
-    <div className="space-x-2">
+    <div className="space-y-2 max-w-xs mx-auto">
       <Input value={editingName} onChange={e => setEditingName(e.target.value)} placeholder="name" />
-      <Input
-        value={editingVisibility}
-        onChange={e => setEditingVisibility(e.target.value)}
-        placeholder="visibility"
-      />
+      <Select value={editingVisibility} onValueChange={setEditingVisibility}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="visibility" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="private">private</SelectItem>
+          <SelectItem value="public-view">public-view</SelectItem>
+          <SelectItem value="public-join">public-join</SelectItem>
+        </SelectContent>
+      </Select>
       <Input
         value={editingGameStyle}
         onChange={e => setEditingGameStyle(e.target.value)}
