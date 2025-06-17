@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../auth';
 import connect from '../../../utils/mongoose';
 import User from '../../../models/User';
+import bcrypt from 'bcryptjs';
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -32,4 +33,26 @@ export async function POST(request: Request) {
       ? (user.clubs as any[]).map(c => c.name)
       : [],
   });
+}
+
+export async function PUT(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ success: false }, { status: 401 });
+  }
+  const { username, password } = await request.json();
+
+  if (username === undefined && password === undefined) {
+    return NextResponse.json({ success: false }, { status: 400 });
+  }
+
+  await connect();
+  const update: any = {};
+  if (username !== undefined) update.username = username;
+  if (password !== undefined) {
+    const hashed = await bcrypt.hash(password, 10);
+    update.password = hashed;
+  }
+  await User.updateOne({ _id: session.user.id }, update);
+  return NextResponse.json({ success: true });
 }
