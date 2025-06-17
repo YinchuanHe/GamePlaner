@@ -1,4 +1,4 @@
-# Game Planer
+# Game Planner for 🏸
 
 Welcome to the PIV Club's not-so-serious game scheduler. It's a Next.js app with NextAuth sprinkled on top so you can manage who gets to do what.
 
