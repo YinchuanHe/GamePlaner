@@ -12,9 +12,6 @@ export default withAuth({
       ) {
         return token.role === 'super-admin'
       }
-      if (path.startsWith('/api/events') && req.method !== 'GET') {
-        return token.role === 'super-admin'
-      }
       if (path.startsWith('/event-edit')) {
         return token.role === 'super-admin' || token.role === 'admin'
       }
