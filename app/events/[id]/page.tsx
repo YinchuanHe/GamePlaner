@@ -100,8 +100,23 @@ export default function EventPage({ params }: { params: { id: string } }) {
       (session?.user?.clubs && session.user.clubs.includes(clubId))
     );
 
+  const canUnregister =
+    !isAdmin &&
+    isParticipant &&
+    statusText === 'registration' &&
+    (!registrationEndTime || dayjs(registrationEndTime).isAfter(dayjs()));
+
   const joinEvent = async () => {
     await request({ url: `/api/events/${params.id}`, method: 'post' });
+    fetchEvent();
+  };
+
+  const leaveEvent = async () => {
+    if (!session?.user?.id) return;
+    await request({
+      url: `/api/events/${params.id}/leave`,
+      method: 'delete',
+    });
     fetchEvent();
   };
 
@@ -158,10 +173,18 @@ export default function EventPage({ params }: { params: { id: string } }) {
   };
 
   const removeParticipant = async (userId: string) => {
-    await request({
-      url: `/api/events/${params.id}?participantId=${userId}`,
-      method: 'delete',
-    });
+    if (!session?.user?.id) return;
+    if (userId === session.user.id) {
+      await request({
+        url: `/api/events/${params.id}/leave`,
+        method: 'delete',
+      });
+    } else {
+      await request({
+        url: `/api/events/${params.id}?participantId=${userId}`,
+        method: 'delete',
+      });
+    }
     fetchEvent();
   };
 
@@ -213,10 +236,12 @@ export default function EventPage({ params }: { params: { id: string } }) {
         Created: {dayjs(createdAt).format('YYYY-MM-DD HH:mm')}
       </p>
       {canRegister && <Button onClick={joinEvent}>Register</Button>}
+      {canUnregister && <Button onClick={leaveEvent}>Leave</Button>}
       <EventContent
         status={statusText}
         isAdmin={isAdmin}
         participants={participants}
+        currentUserId={session?.user?.id}
         editingName={editingName}
         setEditingName={setEditingName}
         editingVisibility={editingVisibility}
