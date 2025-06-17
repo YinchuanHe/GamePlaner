@@ -22,6 +22,7 @@ interface EventContentProps {
   status: EventStep
   isAdmin: boolean
   participants: Participant[]
+  currentUserId?: string
   editingName: string
   setEditingName: (v: string) => void
   editingVisibility: string
@@ -45,6 +46,7 @@ export default function EventContent({
   status,
   isAdmin,
   participants,
+  currentUserId,
   editingName,
   setEditingName,
   editingVisibility,
@@ -125,9 +127,9 @@ export default function EventContent({
             {participants.map(p => (
               <div key={p.id} className="flex items-center justify-between">
                 <UserCard user={p} />
-                {isAdmin && (
+                {(isAdmin || p.id === currentUserId) && (
                   <Button variant="ghost" onClick={() => removeParticipant(p.id)}>
-                    Remove
+                    {p.id === currentUserId ? 'Leave' : 'Remove'}
                   </Button>
                 )}
               </div>
