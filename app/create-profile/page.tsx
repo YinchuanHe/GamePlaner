@@ -10,7 +10,9 @@ import PageSkeleton from '../../components/PageSkeleton'
 import { useApi } from '../../lib/useApi'
 
 
-export default function CreateProfilePage() {
+import { Suspense } from 'react';
+
+function CreateProfileClient() {
   const router = useRouter();
   const { data: session } = useSession();
   const searchParams = useSearchParams();
@@ -69,5 +71,13 @@ export default function CreateProfilePage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function CreateProfilePage() {
+  return (
+    <Suspense>
+      <CreateProfileClient />
+    </Suspense>
   );
 }
