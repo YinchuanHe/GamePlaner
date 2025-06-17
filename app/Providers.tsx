@@ -7,8 +7,10 @@ import type { ReactNode } from 'react'
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <SessionProvider>
-      <AppBar/>
-      {children}
+      <div className="flex flex-col min-h-screen">
+        <AppBar />
+        <main className="flex-grow">{children}</main>
+      </div>
     </SessionProvider>
   );
 }
