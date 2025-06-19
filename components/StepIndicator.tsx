@@ -26,7 +26,7 @@ interface StepProps {
 
 const Step = ({ title, isCompleted, isActive }: StepProps) => {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center shrink-0">
       <div className="relative flex items-center justify-center">
         <div
           className={cn(
@@ -64,7 +64,7 @@ const Step = ({ title, isCompleted, isActive }: StepProps) => {
 export default function StepIndicator({ step }: StepIndicatorProps) {
   const currentIndex = EVENT_STEPS.indexOf(step)
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+    <div className="flex flex-nowrap items-center gap-4 mb-4 overflow-x-auto">
       {EVENT_STEPS.map((s, index) => (
         <React.Fragment key={s}>
           <Step
@@ -73,7 +73,7 @@ export default function StepIndicator({ step }: StepIndicatorProps) {
             isActive={index === currentIndex}
           />
           {index < EVENT_STEPS.length - 1 && (
-            <ChevronRight className="hidden md:block text-muted-foreground" />
+            <ChevronRight className="text-muted-foreground shrink-0" />
           )}
         </React.Fragment>
       ))}
