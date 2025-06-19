@@ -3,6 +3,7 @@ import { Schema, model, models } from 'mongoose';
 const userSchema = new Schema({
   username: { type: String },
   email: { type: String, required: true, unique: true },
+  gender: { type: String },
   role: {
     type: String,
     enum: ['super-admin', 'admin', 'member'],
