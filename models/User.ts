@@ -4,6 +4,7 @@ const userSchema = new Schema({
   username: { type: String },
   email: { type: String, required: true, unique: true },
   gender: { type: String },
+  level: { type: String },
   role: {
     type: String,
     enum: ['super-admin', 'admin', 'member'],

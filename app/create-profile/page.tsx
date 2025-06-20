@@ -21,6 +21,7 @@ function CreateProfileClient() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [gender, setGender] = useState('');
+  const [level, setLevel] = useState('');
   const [error, setError] = useState('');
 
   // Populate email from NextAuth session or query param
@@ -38,11 +39,15 @@ function CreateProfileClient() {
       setError('Gender is required');
       return;
     }
+    if (!level) {
+      setError('Level is required');
+      return;
+    }
     try {
       await request({
         url: '/api/signup',
         method: 'post',
-        data: { email, username, gender },
+        data: { email, username, gender, level },
       });
       router.push('/login');
     } catch (e: any) {
@@ -71,6 +76,11 @@ function CreateProfileClient() {
           placeholder="Gender"
           value={gender}
           onChange={e => setGender(e.target.value)}
+        />
+        <Input
+          placeholder="Level"
+          value={level}
+          onChange={e => setLevel(e.target.value)}
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button className="w-full" onClick={handleSubmit}>
