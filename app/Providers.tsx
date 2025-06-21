@@ -7,7 +7,7 @@ import type { ReactNode } from 'react'
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <SessionProvider>
-      <div className="flex flex-col min-h-dvh">
+      <div className="flex flex-col min-h-screen">
         <AppBar />
         <main className="flex-grow">{children}</main>
       </div>

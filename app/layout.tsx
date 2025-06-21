@@ -24,7 +24,7 @@ export default function RootLayout({
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
       </head>
-      <body suppressHydrationWarning className="min-h-dvh overflow-x-hidden">
+      <body suppressHydrationWarning className="min-h-screen overflow-x-hidden">
         <Providers>
           {children}
         </Providers>
