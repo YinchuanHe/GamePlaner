@@ -10,6 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
+import { Menu } from 'lucide-react'
+
 
 export default function AppBar() {
   const router = useRouter()
@@ -24,15 +26,15 @@ export default function AppBar() {
     <nav className="sticky top-0 z-50 flex items-center justify-between bg-gray-100 border-b px-4 py-2">
       <Link href="/" className="font-semibold">PAiMO</Link>
       <div className="space-x-4 flex items-center relative">
-        <Link href="/" className="hover:underline">Home</Link>
         {!session ? (
           <Link href="/login" className="hover:underline">Login</Link>
         ) : (
-          <>
+          <div className="flex items-center space-x-2">
+            <p>{session.user?.name || session.user?.email}</p>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost">
-                  {session.user?.name || session.user?.email}
+                  <Menu />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -57,7 +59,7 @@ export default function AppBar() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </>
+          </div>
         )}
       </div>
     </nav>
