@@ -6,6 +6,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '../../components/ui/select';
 import PageSkeleton from '../../components/PageSkeleton'
 import { useApi } from '../../lib/useApi'
 
@@ -74,11 +81,15 @@ function CreateProfileClient() {
           value={nickname}
           onChange={e => setNickname(e.target.value)}
         />
-        <Input
-          placeholder="Gender"
-          value={gender}
-          onChange={e => setGender(e.target.value)}
-        />
+        <Select value={gender} onValueChange={setGender}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Gender" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Male">Male</SelectItem>
+            <SelectItem value="Female">Female</SelectItem>
+          </SelectContent>
+        </Select>
         <Input
           placeholder="WeChat ID"
           value={wechatId}
