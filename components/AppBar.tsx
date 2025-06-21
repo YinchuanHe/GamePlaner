@@ -22,7 +22,7 @@ export default function AppBar() {
 
   return (
     <nav className="sticky top-0 z-50 flex items-center justify-between bg-gray-100 border-b px-4 py-2">
-      <Link href="/" className="font-semibold">Game Planer</Link>
+      <Link href="/" className="font-semibold">PAiMO</Link>
       <div className="space-x-4 flex items-center relative">
         <Link href="/" className="hover:underline">Home</Link>
         {!session ? (

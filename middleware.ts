@@ -7,8 +7,7 @@ export default withAuth({
       const path = req.nextUrl.pathname
       if (
         path.startsWith('/manage') ||
-        path.startsWith('/api/users') ||
-        path === '/api/clubs'
+        path.startsWith('/api/users')
       ) {
         return token.role === 'super-admin'
       }
