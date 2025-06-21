@@ -1,4 +1,4 @@
-# Game Planner for 🏸
+# PAiMO for 🏸
 
 Welcome to the PIV Club's not-so-serious game scheduler. It's a Next.js app with NextAuth sprinkled on top so you can manage who gets to do what.
 
@@ -7,7 +7,7 @@ Welcome to the PIV Club's not-so-serious game scheduler. It's a Next.js app with
 2. Drop a `.env.local` file at the project root with your `DB_URL` and a `NEXTAUTH_SECRET`:
    ```env
    DB_URL=your_mongodb_connection_string
-   NEXTAUTH_SECRET=some_complex_secret
+   AUTH_SECRET=some_complex_secret
    ```
 3. Fire up the dev server with `npm run dev` and open `http://localhost:3000`.
 4. Head to `/signup` to create an account, then `/login` to start planning.
