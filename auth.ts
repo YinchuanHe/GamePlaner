@@ -90,8 +90,8 @@ export const authOptions: NextAuthOptions = {
           clubs: [],
         });
       }
-      // Redirect new users to create-profile
-      return "/create-profile";
+      // Redirect new users to create-profile with email in query params
+      return `/create-profile?email=${encodeURIComponent(user.email || "")}`;
     },
     async redirect({ url, baseUrl }) {
       // If redirecting to create-profile, allow it
