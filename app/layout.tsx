@@ -7,8 +7,8 @@ import { Providers } from "./Providers";
 
 
 export const metadata: Metadata = {
-  title: "PIV Club Game Planer",
-  description: "Plan Games for our lovely PIV Club members",
+  title: "PAiMO",
+  description: "PAiMO is a club/event manage web app build for our lovely PIV Club members",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
       </head>
-      <body suppressHydrationWarning className="min-h-dvh overflow-x-hidden">
+      <body suppressHydrationWarning className="min-h-dvh overflow-x-hidden overscroll-contain">
         <Providers>
           {children}
         </Providers>
