@@ -13,13 +13,13 @@ export default function AppFooter() {
   const isProfile = pathname === '/profile'
 
   const btnClass = (active: boolean) =>
-    `flex flex-col items-center space-y-0.5 ${active ? 'text-primary' : 'text-muted-foreground'}`
+    `flex flex-col items-center space-y-0.5 p-1 ${active ? 'text-primary' : 'text-muted-foreground'}`
 
   return (
     <footer className="border-t p-2 flex items-center justify-around sticky bottom-0 bg-background">
       <Button variant="ghost" className={btnClass(isHome)} asChild>
         <Link href="/">
-          <Home className="h-5 w-5" />
+          <Home size={20} />
           <span className="text-xs">Home</span>
         </Link>
       </Button>
@@ -30,7 +30,7 @@ export default function AppFooter() {
         </Link>
       </Button>
       <Button variant="ghost" className={btnClass(isClubs)} asChild>
-        <Link href="/clubs">
+        <Link href="/user">
           <Users className="h-5 w-5" />
           <span className="text-xs">Club</span>
         </Link>

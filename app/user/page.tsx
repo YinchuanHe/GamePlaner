@@ -50,7 +50,7 @@ export default function UserPage() {
       {clubs.length === 0 ? (
         <p>You are not a member of any clubs.</p>
       ) : (
-        <div className="space-y-2">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {clubs.map(c => (
             <Link key={c.id} href={`/clubs/${c.id}`}>
               <ClubCard club={c} />
