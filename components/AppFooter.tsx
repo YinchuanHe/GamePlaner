@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Home, Calendar, Users, User } from 'lucide-react'
 import { Button } from './ui/button'
 
-export default function Footer() {
+export default function AppFooter() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t bg-background md:hidden">
       <div className="flex justify-around py-2">
