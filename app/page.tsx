@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { Button } from '../components/ui/button'
 import EventCard from '../components/EventCard'
+import ClubCard from '../components/ClubCard'
 import PageSkeleton from '../components/PageSkeleton'
 import { useApi } from '../lib/useApi'
 
@@ -17,18 +18,42 @@ interface EventItem {
   participantCount?: number
 }
 
+interface ClubItem {
+  id: string
+  name: string
+  description?: string
+  location?: string
+  createdBy?: string
+  createdAt?: string
+  logoUrl?: string
+}
+
 export default function Home() {
   const { data: session, status } = useSession()
   const { request, loading, error } = useApi()
   const [events, setEvents] = useState<EventItem[]>([])
+  const [clubs, setClubs] = useState<ClubItem[]>([])
+  const [activeTab, setActiveTab] = useState<'events' | 'clubs'>('events')
 
   useEffect(() => {
     if (status !== 'authenticated') return
-    const fetchEvents = async () => {
-      const res = await request<{ events: EventItem[] }>({ url: '/api/events', method: 'get' })
-      setEvents(res.events)
+    const fetchData = async () => {
+      const evRes = await request<{ events: EventItem[] }>({ url: '/api/events', method: 'get' })
+      setEvents(evRes.events)
+      const clubRes = await request<{ clubs: any[] }>({ url: '/api/clubs', method: 'get' })
+      setClubs(
+        clubRes.clubs.map(c => ({
+          id: c._id || c.id,
+          name: c.name,
+          description: c.description,
+          location: c.location,
+          createdBy: c.createdBy,
+          createdAt: c.createdAt,
+          logoUrl: c.logoUrl,
+        }))
+      )
     }
-    fetchEvents()
+    fetchData()
   }, [status, request])
 
   if (status === 'loading' || loading) {
@@ -58,17 +83,51 @@ export default function Home() {
 
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl mb-2">Available Events</h1>
-      {events.length === 0 ? (
-        <p>No events.</p>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {events.map(e => (
-            <Link key={e.id} href={`/events/${e.id}`}
-              className="block">
-              <EventCard event={e} />
-            </Link>
-          ))}
+      <div className="flex space-x-2">
+        <Button
+          variant={activeTab === 'events' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('events')}
+        >
+          Events
+        </Button>
+        <Button
+          variant={activeTab === 'clubs' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('clubs')}
+        >
+          Clubs
+        </Button>
+      </div>
+      {activeTab === 'events' && (
+        <div className="space-y-4">
+          <h1 className="text-2xl mb-2">Available Events</h1>
+          {events.length === 0 ? (
+            <p>No events.</p>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {events.map(e => (
+                <Link key={e.id} href={`/events/${e.id}`} className="block">
+                  <EventCard event={e} />
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {activeTab === 'clubs' && (
+        <div className="space-y-4">
+          <h1 className="text-2xl mb-2">Clubs</h1>
+          {clubs.length === 0 ? (
+            <p>No clubs.</p>
+          ) : (
+            <div className="space-y-2">
+              {clubs.map(c => (
+                <Link key={c.id} href={`/clubs/${c.id}`}
+                  className="block">
+                  <ClubCard club={c} />
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
