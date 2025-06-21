@@ -21,6 +21,8 @@ function CreateProfileClient() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [gender, setGender] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [wechatId, setWechatId] = useState('');
   const [error, setError] = useState('');
 
   // Populate email from NextAuth session or query param
@@ -42,7 +44,7 @@ function CreateProfileClient() {
       await request({
         url: '/api/signup',
         method: 'post',
-        data: { email, username, gender },
+        data: { email, username, gender, nickname, wechatId },
       });
       router.push('/login');
     } catch (e: any) {
@@ -68,9 +70,19 @@ function CreateProfileClient() {
           onChange={e => setUsername(e.target.value)}
         />
         <Input
+          placeholder="Nickname"
+          value={nickname}
+          onChange={e => setNickname(e.target.value)}
+        />
+        <Input
           placeholder="Gender"
           value={gender}
           onChange={e => setGender(e.target.value)}
+        />
+        <Input
+          placeholder="WeChat ID"
+          value={wechatId}
+          onChange={e => setWechatId(e.target.value)}
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}
         <Button className="w-full" onClick={handleSubmit}>
