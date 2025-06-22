@@ -1,4 +1,5 @@
-import { Schema, model, models } from 'mongoose';
+import mongoose from 'mongoose';
+const { Schema, model, models } = mongoose;
 
 const matchSchema = new Schema({
   event: { type: Schema.Types.ObjectId, ref: 'Event', required: true },

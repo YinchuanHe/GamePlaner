@@ -1,15 +1,17 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
-import connect from '../utils/mongoose.js';
-import User from '../models/User.js';
-import Club from '../models/Club.js';
-import Event from '../models/Event.js';
+import connect from '../utils/mongoose';
+import User from '../models/User';
+import Club from '../models/Club';
+import Event from '../models/Event';
+
+dotenv.config();
 
 async function main() {
   const [userCountArg, clubName = 'Test Club', eventName = 'Test Event'] = process.argv.slice(2);
   const userCount = parseInt(userCountArg, 10);
   if (!userCount || userCount <= 0) {
-    console.log('Usage: node scripts/createTestData.js <user-count> [club-name] [event-name]');
+    console.log('Usage: ts-node scripts/createTestData.ts <user-count> [club-name] [event-name]');
     process.exit(1);
   }
 
