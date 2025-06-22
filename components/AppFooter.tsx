@@ -2,11 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Button } from './ui/button'
 import { Home, CalendarDays, Users, User } from 'lucide-react'
 
 export default function AppFooter() {
+  const { data: session } = useSession()
   const pathname = usePathname()
+  if (!session) return null
   const isHome = pathname === '/'
   const isEvents = pathname.startsWith('/events') || pathname === '/event-edit'
   const isClubs = pathname.startsWith('/clubs') || pathname === '/user'
