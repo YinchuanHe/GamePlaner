@@ -1,5 +1,17 @@
 import { Schema, model, models } from 'mongoose';
 
+export interface IUser {
+  username?: string;
+  email: string;
+  gender?: string;
+  nickname?: string;
+  wechatId?: string;
+  role?: 'super-admin' | 'admin' | 'member';
+  clubs?: string[];
+  image?: string;
+  password?: string;
+}
+
 const userSchema = new Schema({
   username: { type: String },
   email: { type: String, required: true, unique: true },

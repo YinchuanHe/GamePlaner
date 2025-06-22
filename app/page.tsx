@@ -7,6 +7,8 @@ import EventCard from '../components/EventCard'
 import ClubCard from '../components/ClubCard'
 import PageSkeleton from '../components/PageSkeleton'
 import { useApi } from '../lib/useApi'
+import { useRouter } from 'next/navigation';
+import { IUser } from '@/models/User'
 
 interface EventItem {
   id: string
@@ -18,43 +20,29 @@ interface EventItem {
   participantCount?: number
 }
 
-interface ClubItem {
-  id: string
-  name: string
-  description?: string
-  location?: string
-  createdBy?: string
-  createdAt?: string
-  logoUrl?: string
-}
-
 export default function Home() {
   const { data: session, status } = useSession()
   const { request, loading, error } = useApi()
   const [events, setEvents] = useState<EventItem[]>([])
-  const [clubs, setClubs] = useState<ClubItem[]>([])
-  const [activeTab, setActiveTab] = useState<'events' | 'clubs'>('events')
+  const [user, setUser] = useState<IUser>({} as IUser)
+  const router = useRouter();
 
   useEffect(() => {
     if (status !== 'authenticated') return
-    const fetchData = async () => {
-      const evRes = await request<{ events: EventItem[] }>({ url: '/api/events', method: 'get' })
-      setEvents(evRes.events)
-      const clubRes = await request<{ clubs: any[] }>({ url: '/api/clubs', method: 'get' })
-      setClubs(
-        clubRes.clubs.map(c => ({
-          id: c._id || c.id,
-          name: c.name,
-          description: c.description,
-          location: c.location,
-          createdBy: c.createdBy,
-          createdAt: c.createdAt,
-          logoUrl: c.logoUrl,
-        }))
-      )
+    if (session.user?.profileComplete === false) {
+      router.push('/create-profile');
     }
-    fetchData()
-  }, [status, request])
+    const fetchUser = async () => {
+      const userRes = await request<{ user: IUser }>({ url: '/api/profile', method: 'get' })
+      setUser(userRes.user)
+    }
+    const fetchEvents = async () => {
+      const evRes = await request<{ events: EventItem[] }>({ url: '/api/user-events', method: 'get' })
+      setEvents(evRes.events)
+    }
+    fetchEvents()
+    fetchUser()
+  }, [status, request, router, session])
 
   if (status === 'loading' || loading) {
     return <PageSkeleton />
@@ -84,52 +72,25 @@ export default function Home() {
   return (
     <div className="p-4 space-y-4">
       <div className="flex space-x-2">
-        <Button
-          variant={activeTab === 'events' ? 'default' : 'outline'}
-          onClick={() => setActiveTab('events')}
-        >
-          Events
-        </Button>
-        <Button
-          variant={activeTab === 'clubs' ? 'default' : 'outline'}
-          onClick={() => setActiveTab('clubs')}
-        >
-          Clubs
-        </Button>
+        <span className="text-lg font-semibold flex-1">
+          👋 Hi, {user?.nickname || 'there'}!
+        </span>
       </div>
-      {activeTab === 'events' && (
-        <div className="space-y-4">
-          <h1 className="text-2xl mb-2">Available Events</h1>
-          {events.length === 0 ? (
-            <p>No events.</p>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {events.map(e => (
-                <Link key={e.id} href={`/events/${e.id}`} className="block">
-                  <EventCard event={e} />
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-      {activeTab === 'clubs' && (
-        <div className="space-y-4">
-          <h1 className="text-2xl mb-2">Clubs</h1>
-          {clubs.length === 0 ? (
-            <p>No clubs.</p>
-          ) : (
-            <div className="space-y-2">
-              {clubs.map(c => (
-                <Link key={c.id} href={`/clubs/${c.id}`}
-                  className="block">
-                  <ClubCard club={c} />
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+
+      <div className="space-y-4">
+        <h1 className="text-2xl mb-2">Upcoming Events</h1>
+        {events.length === 0 ? (
+          <p>No events.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {events.map(e => (
+              <Link key={e.id} href={`/events/${e.id}`} className="block">
+                <EventCard event={e} />
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

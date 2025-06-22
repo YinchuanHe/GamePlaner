@@ -21,7 +21,7 @@ import { Suspense } from 'react';
 
 function CreateProfileClient() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status, update } = useSession();
   const searchParams = useSearchParams();
   const { request, loading, error: apiError } = useApi();
 
@@ -53,13 +53,14 @@ function CreateProfileClient() {
         method: 'post',
         data: { email, username, gender, nickname, wechatId },
       });
-      router.push('/login');
+      await update();
+      router.push('/');
     } catch (e: any) {
       setError('Signup failed. Please try again.');
     }
   };
 
-  if (loading) {
+  if (status === 'loading' || loading) {
     return <PageSkeleton />;
   }
 

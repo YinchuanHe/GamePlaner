@@ -13,7 +13,7 @@ export default function AppFooter() {
   const isProfile = pathname === '/profile'
 
   const btnClass = (active: boolean) =>
-    `flex flex-col items-center space-y-0.5 p-1 ${active ? 'text-primary' : 'text-muted-foreground'}`
+    `flex flex-col items-center space-y-0.5 p-1 w-20 ${active ? 'text-primary' : 'text-muted-foreground'}`
 
   return (
     <footer className="border-t p-2 flex items-center justify-around sticky bottom-0 bg-background">
