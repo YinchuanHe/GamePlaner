@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../auth';
 import connect from '../../../utils/mongoose';
 import User from '../../../models/User';
+import '../../../models/Club';
 import bcrypt from 'bcryptjs';
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
