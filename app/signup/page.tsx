@@ -13,6 +13,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [error, setError] = useState('');
+  const [sent, setSent] = useState(false);
 
   const handleEmailBlur = async () => {
     const valid = /\S+@\S+\.\S+/.test(email);
@@ -43,7 +44,7 @@ export default function SignupPage() {
         method: 'post',
         data: { email, password },
       });
-      router.push(`/create-profile?email=${encodeURIComponent(email)}`);
+      setSent(true);
     } catch {
       setError('Signup failed.');
     }
@@ -52,26 +53,30 @@ export default function SignupPage() {
   return (
     <div className="mx-auto max-w-xs py-8">
       <h1 className="text-2xl font-semibold mb-4">Sign Up</h1>
-      <div className="space-y-4">
-        <Input
-          placeholder="Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          onBlur={handleEmailBlur}
-        />
-        {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-        />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <Button className="w-full" onClick={handleSubmit}>Sign Up</Button>
-        <Button variant="outline" className="w-full" asChild>
-          <Link href="/login">Back to Login</Link>
-        </Button>
-      </div>
+      {sent ? (
+        <p>Please check your email to verify your account.</p>
+      ) : (
+        <div className="space-y-4">
+          <Input
+            placeholder="Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            onBlur={handleEmailBlur}
+          />
+          {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <Button className="w-full" onClick={handleSubmit}>Sign Up</Button>
+          <Button variant="outline" className="w-full" asChild>
+            <Link href="/login">Back to Login</Link>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

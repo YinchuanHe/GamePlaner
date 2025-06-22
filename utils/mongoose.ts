@@ -4,6 +4,7 @@ import '@/models/User';
 import '@/models/Club';
 import '@/models/Event';
 import '@/models/Match';
+import '@/models/PendingUser';
 
 
 
