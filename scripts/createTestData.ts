@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' })
 import bcrypt from 'bcryptjs';
 import connect from '../utils/mongoose';
 import User from '../models/User';
 import Club from '../models/Club';
 import Event from '../models/Event';
-
 dotenv.config();
 
 async function main() {
@@ -21,10 +21,12 @@ async function main() {
   for (let i = 0; i < userCount; i++) {
     const email = `testuser_${Date.now()}_${i}@example.com`;
     const password = await bcrypt.hash('password', 10);
+    const level = +(Math.random() * (6 - 3) + 3).toFixed(1);
     const user = await User.create({
       email,
       username: `testuser${i}`,
       password,
+      level,
     });
     users.push(user);
   }

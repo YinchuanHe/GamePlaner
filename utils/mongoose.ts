@@ -6,7 +6,7 @@ import '@/models/Event';
 import '@/models/Match';
 
 
-const uri = process.env.DB_URL;
+
 
 let cached: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null } = (global as any).mongoose;
 
@@ -15,6 +15,7 @@ if (!cached) {
 }
 
 export default async function connect() {
+  const uri = process.env.DB_URL;
   if (!uri) {
     throw new Error('DB_URL environment variable is not set');
   }

@@ -11,6 +11,7 @@ export interface IUser {
   clubs?: string[];
   image?: string;
   password?: string;
+  level?: number;
 }
 
 const userSchema = new Schema({
@@ -27,6 +28,7 @@ const userSchema = new Schema({
   clubs: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
   image: { type: String },
   password: { type: String },
+  level: { type: Number },
 });
 
 export default models.User || model('User', userSchema);
