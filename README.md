@@ -4,10 +4,12 @@ Welcome to the PIV Club's not-so-serious game scheduler. It's a Next.js app with
 
 ## Dangerously Quick Setup
 1. Clone this repo and run `npm install`. (Skip this and things will break, we warned you!)
-2. Drop a `.env.local` file at the project root with your `DB_URL` and a `NEXTAUTH_SECRET`:
+2. Drop a `.env.local` file at the project root with your `DB_URL`, a `NEXTAUTH_SECRET`, and variables for email verification:
    ```env
    DB_URL=your_mongodb_connection_string
    AUTH_SECRET=some_complex_secret
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   RESEND_API_KEY=your_resend_key
    ```
 3. Fire up the dev server with `npm run dev` and open `http://localhost:3000`.
 4. Head to `/signup` to create an account, then `/login` to start planning.
