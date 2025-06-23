@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../auth';
 import connect from '../../../utils/mongoose';
 import Event from '../../../models/Event';
+import Club from '../../../models/Club';
+import User from '../../../models/User';
+import { sendPush } from '../../../utils/push';
 import mongoose from 'mongoose';
 
 export async function GET() {
@@ -77,7 +80,7 @@ export async function POST(request: Request) {
     umpires,
   } = await request.json();
   await connect();
-  await Event.create({
+  const event = await Event.create({
     name,
     club: clubId,
     status,
@@ -89,5 +92,25 @@ export async function POST(request: Request) {
     courtCount,
     umpires,
   });
+
+  if (clubId) {
+    const club: any = await Club.findById(clubId);
+    if (club) {
+      const memberIds = (club.members || []).map((m: any) => m.id);
+      const users = await User.find(
+        { _id: { $in: memberIds } },
+        'pushSubscriptions',
+      );
+      for (const u of users) {
+        for (const sub of u.pushSubscriptions || []) {
+          await sendPush(sub, {
+            title: 'New Event Created',
+            body: `${name} has been created in ${club.name}`,
+            eventId: event._id.toString(),
+          });
+        }
+      }
+    }
+  }
   return NextResponse.json({ success: true });
 }

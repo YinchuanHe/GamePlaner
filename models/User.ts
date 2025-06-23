@@ -12,6 +12,10 @@ export interface IUser {
   image?: string;
   password?: string;
   level?: number;
+  pushSubscriptions?: {
+    endpoint: string;
+    keys: { p256dh: string; auth: string };
+  }[];
 }
 
 const userSchema = new Schema({
@@ -29,6 +33,15 @@ const userSchema = new Schema({
   image: { type: String },
   password: { type: String },
   level: { type: Number },
+  pushSubscriptions: [
+    {
+      endpoint: String,
+      keys: {
+        p256dh: String,
+        auth: String,
+      },
+    },
+  ],
 });
 
 export default models.User || model('User', userSchema);

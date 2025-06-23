@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../../auth';
 import connect from '../../../../utils/mongoose';
 import Event from '../../../../models/Event';
+import Club from '../../../../models/Club';
+import User from '../../../../models/User';
+import { sendPush } from '../../../../utils/push';
 
 export async function GET(
   request: Request,
@@ -96,6 +99,11 @@ export async function PUT(
     umpires,
   } = await request.json();
   await connect();
+  const event = await Event.findById(params.id);
+  if (!event) {
+    return NextResponse.json({ success: false }, { status: 404 });
+  }
+
   const update: any = {};
   if (name !== undefined) update.name = name;
   if (status !== undefined) update.status = status;
@@ -106,7 +114,28 @@ export async function PUT(
   if (maxPoint !== undefined) update.maxPoint = maxPoint;
   if (courtCount !== undefined) update.courtCount = courtCount;
   if (umpires !== undefined) update.umpires = umpires;
+
   await Event.updateOne({ _id: params.id }, update);
+
+  if (status && event.status !== status && status === 'registration') {
+    if (event.club) {
+      const club: any = await Club.findById(event.club);
+      const memberIds = (club?.members || []).map((m: any) => m.id);
+      const users = await User.find(
+        { _id: { $in: memberIds } },
+        'pushSubscriptions',
+      );
+      for (const u of users) {
+        for (const sub of u.pushSubscriptions || []) {
+          await sendPush(sub, {
+            title: 'Event Registration Open',
+            body: `${event.name} is now open for registration`,
+            eventId: event._id.toString(),
+          });
+        }
+      }
+    }
+  }
   return NextResponse.json({ success: true });
 }
 
