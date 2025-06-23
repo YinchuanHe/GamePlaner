@@ -9,13 +9,17 @@ const client = new S3Client({
   },
 });
 
-export async function uploadAvatar(key: string, data: Buffer) {
+export async function uploadAvatar(
+  key: string,
+  data: Buffer,
+  contentType = 'image/png'
+) {
   await client.send(
     new PutObjectCommand({
       Bucket: process.env.R2_BUCKET_NAME!,
       Key: key,
       Body: data,
-      ContentType: 'image/png',
+      ContentType: contentType,
       ACL: 'public-read',
     })
   );
