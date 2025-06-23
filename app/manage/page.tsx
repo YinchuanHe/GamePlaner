@@ -128,7 +128,7 @@ export default function ManagePage() {
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-xl font-semibold">Role Management</h1>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-64 overflow-y-auto">
         <table className="min-w-full text-xs sm:text-sm border">
           <thead className="bg-gray-100">
             <tr>
