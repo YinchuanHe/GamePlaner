@@ -40,6 +40,7 @@ export default function ManagePage() {
   const [eventName, setEventName] = useState('');
   const [clubs, setClubs] = useState<ClubOption[]>([]);
   const [selectedClub, setSelectedClub] = useState<string>('');
+  const [pendingUsers, setPendingUsers] = useState<{ id: string; email: string; createdAt: string }[]>([]);
 
   const fetchUsers = useCallback(async () => {
     const res = await request<{ users: User[] }>({ url: '/api/users', method: 'get' });
@@ -76,6 +77,11 @@ export default function ManagePage() {
     );
   }, [request]);
 
+  const fetchPending = useCallback(async () => {
+    const res = await request<{ users: { id: string; email: string; createdAt: string }[] }>({ url: '/api/pending-users', method: 'get' });
+    setPendingUsers(res.users);
+  }, [request]);
+
   const handleCreateEvent = async () => {
     if (!selectedClub) return;
     await request({
@@ -84,6 +90,16 @@ export default function ManagePage() {
       data: { name: eventName, clubId: selectedClub },
     });
     setEventName('');
+  };
+
+  const handleResend = async (id: string) => {
+    await request({ url: `/api/pending-users/${id}/resend`, method: 'post' });
+  };
+
+
+  const handleRemove = async (id: string) => {
+    await request({ url: `/api/pending-users/${id}`, method: 'delete' });
+    fetchPending();
   };
 
   useEffect(() => {
@@ -98,7 +114,8 @@ export default function ManagePage() {
     }
     fetchUsers();
     fetchClubs();
-  }, [status, session, router, fetchUsers, fetchClubs]);
+    fetchPending();
+  }, [status, session, router, fetchUsers, fetchClubs, fetchPending]);
 
   if (status === 'loading' || loading) {
     return <PageSkeleton />
@@ -143,7 +160,7 @@ export default function ManagePage() {
           </tbody>
         </table>
       </div>
-      <div className="mt-8 space-y-4">
+      <div className="mt-8 mb-8 space-y-4">
         <div className="flex items-center space-x-2">
           <Input placeholder="New Club Name" value={clubName} onChange={e => setClubName(e.target.value)} />
           <Button onClick={handleCreateClub}>Create Club</Button>
@@ -170,12 +187,40 @@ export default function ManagePage() {
           <h2 className="text-lg font-semibold mt-4">All Clubs</h2>
           <div className="space-y-2">
             {clubs.map(c => (
-              <Link key={c.id} href={`/clubs/${c.id}`}> 
+              <Link key={c.id} href={`/clubs/${c.id}`}>
                 <ClubCard club={c} />
               </Link>
             ))}
           </div>
         </div>
+        {pendingUsers.length > 0 &&(
+        <div>
+          <h2 className="text-lg font-semibold mt-4">Pending Signups</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm border">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="border p-2 text-left">Email</th>
+                  <th className="border p-2 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingUsers.map(p => (
+                  <tr key={p.id} className="odd:bg-white even:bg-gray-50">
+                    <td className="border p-2">{p.email}</td>
+                      <td className="border p-2 space-x-2">
+                        <Button size="sm" onClick={() => handleResend(p.id)}>Resend</Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleRemove(p.id)}>
+                          Remove
+                        </Button>
+                      </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        )}
       </div>
     </div>
   );
