@@ -101,6 +101,11 @@ export default function ManagePage() {
     fetchPending();
   };
 
+  const handleRemove = async (id: string) => {
+    await request({ url: `/api/pending-users/${id}`, method: 'delete' });
+    fetchPending();
+  };
+
   useEffect(() => {
     if (status === 'loading') return;
     if (!session) {
@@ -206,12 +211,15 @@ export default function ManagePage() {
                 {pendingUsers.map(p => (
                   <tr key={p.id} className="odd:bg-white even:bg-gray-50">
                     <td className="border p-2">{p.email}</td>
-                    <td className="border p-2 space-x-2">
-                      <Button size="sm" onClick={() => handleResend(p.id)}>Resend</Button>
-                      <Button size="sm" variant="outline" onClick={() => handleSkip(p.id)}>
-                        Skip
-                      </Button>
-                    </td>
+                      <td className="border p-2 space-x-2">
+                        <Button size="sm" onClick={() => handleResend(p.id)}>Resend</Button>
+                        <Button size="sm" variant="outline" onClick={() => handleSkip(p.id)}>
+                          Skip
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleRemove(p.id)}>
+                          Remove
+                        </Button>
+                      </td>
                   </tr>
                 ))}
               </tbody>
