@@ -1,9 +1,13 @@
-import NextAuth, { NextAuthOptions } from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
-import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from "bcryptjs"
+import NextAuth, { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import EmailProvider from "next-auth/providers/email";
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import bcrypt from "bcryptjs";
 import connect from "@/utils/mongoose";
 import User from "@/models/User";
+import clientPromise from "@/lib/mongodb";
+import { Resend } from "resend";
 
 // Extend the default session user type to include id and role
 declare module "next-auth" {
@@ -53,7 +57,21 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    EmailProvider({
+      from: process.env.EMAIL_FROM,
+      async sendVerificationRequest({ identifier, url }) {
+        const resend = new Resend(process.env.RESEND_API_KEY || '');
+        const { host } = new URL(url);
+        await resend.emails.send({
+          from: process.env.EMAIL_FROM || 'PAiMO <hello@paimo.io>',
+          to: identifier,
+          subject: `Sign in to ${host}`,
+          html: `<p>Sign in by clicking <a href="${url}">here</a>.</p>`,
+        });
+      },
+    }),
   ],
+  adapter: MongoDBAdapter(clientPromise),
   secret: process.env.AUTH_SECRET,
   pages: {
     newUser: '/create-profile',

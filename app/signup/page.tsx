@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { useApi } from '../../lib/useApi';
@@ -38,10 +39,10 @@ export default function SignupPage() {
   const handleSubmit = async () => {
     if (emailError) return;
     try {
-      await request({
-        url: '/api/register',
-        method: 'post',
-        data: { email },
+      await signIn('email', {
+        email,
+        redirect: false,
+        callbackUrl: '/create-profile',
       });
       setSent(true);
     } catch {
@@ -53,7 +54,7 @@ export default function SignupPage() {
     <div className="mx-auto max-w-xs py-8">
       <h1 className="text-2xl font-semibold mb-4">Sign Up</h1>
       {sent ? (
-        <p>Please check your email to verify your account.</p>
+        <p>Please check your email for a sign in link.</p>
       ) : (
         <div className="space-y-4">
           <Input
