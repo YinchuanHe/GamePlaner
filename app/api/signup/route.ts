@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import connect from '../../../utils/mongoose';
 import User from '../../../models/User';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
   try {
-    const { email, username, gender, nickname, wechatId } = await request.json()
+    const { email, username, gender, nickname, wechatId, password } = await request.json()
 
     if (!email) {
       return NextResponse.json(
@@ -15,9 +16,15 @@ export async function POST(request: Request) {
 
     await connect()
 
+    const update: any = { username, gender, nickname, wechatId }
+    if (password) {
+      const hashed = await bcrypt.hash(password, 10)
+      update.password = hashed
+    }
+
     const updated = await User.findOneAndUpdate(
       { email },
-      { $set: { username, gender, nickname, wechatId } },
+      { $set: update },
       { new: true, upsert: true }
     )
 
