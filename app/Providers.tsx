@@ -6,6 +6,11 @@ import { SessionProvider } from 'next-auth/react'
 import type { ReactNode } from 'react'
 import type { Session } from 'next-auth'
 import { usePushSubscription } from '@/hooks/usePushSubscription'
+
+function PushSubscriber({ children }: { children: ReactNode }) {
+  usePushSubscription()
+  return <>{children}</>
+}
 export function Providers({
   children,
   session,
@@ -13,14 +18,15 @@ export function Providers({
   children: ReactNode
   session: Session | null
 }) {
-  usePushSubscription()
   return (
     <SessionProvider session={session}>
-      <div className="flex flex-col h-full">
-        <AppBar />
-        <main className="flex-grow overflow-y-auto">{children}</main>
-        <AppFooter />
-      </div>
+      <PushSubscriber>
+        <div className="flex flex-col h-full">
+          <AppBar />
+          <main className="flex-grow overflow-y-auto">{children}</main>
+          <AppFooter />
+        </div>
+      </PushSubscriber>
     </SessionProvider>
-  );
+  )
 }
