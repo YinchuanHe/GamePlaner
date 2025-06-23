@@ -193,6 +193,7 @@ export default function ManagePage() {
             ))}
           </div>
         </div>
+        {pendingUsers.length > 0 &&(
         <div>
           <h2 className="text-lg font-semibold mt-4">Pending Signups</h2>
           <div className="overflow-x-auto">
@@ -219,6 +220,7 @@ export default function ManagePage() {
             </table>
           </div>
         </div>
+        )}
       </div>
     </div>
   );
