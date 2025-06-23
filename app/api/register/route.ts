@@ -2,13 +2,12 @@ import { NextResponse } from 'next/server';
 import connect from '@/utils/mongoose';
 import User from '@/models/User';
 import PendingUser from '@/models/PendingUser';
-import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import { Resend } from 'resend';
 
 export async function POST(request: Request) {
-  const { email, password } = await request.json();
-  if (!email || !password) {
+  const { email } = await request.json();
+  if (!email) {
     return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
   }
   await connect();
@@ -20,9 +19,9 @@ export async function POST(request: Request) {
   if (pending) {
     await pending.deleteOne();
   }
-  const hashed = await bcrypt.hash(password, 10);
+  
   const token = randomBytes(32).toString('hex');
-  await PendingUser.create({ email, password: hashed, token });
+  await PendingUser.create({ email, token });
 
   const resend = new Resend(process.env.RESEND_API_KEY || '');
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;

@@ -10,7 +10,6 @@ export default function SignupPage() {
   const router = useRouter();
   const { request } = useApi();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
@@ -42,7 +41,7 @@ export default function SignupPage() {
       await request({
         url: '/api/register',
         method: 'post',
-        data: { email, password },
+        data: { email },
       });
       setSent(true);
     } catch {
@@ -64,13 +63,6 @@ export default function SignupPage() {
             onBlur={handleEmailBlur}
           />
           {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
-          {error && <p className="text-red-500 text-sm">{error}</p>}
           <Button className="w-full" onClick={handleSubmit}>Sign Up</Button>
           <Button variant="outline" className="w-full" asChild>
             <Link href="/login">Back to Login</Link>

@@ -31,6 +31,7 @@ declare module "next-auth/jwt" {
 }
 
 export const authOptions: NextAuthOptions = {
+  debug: true,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
