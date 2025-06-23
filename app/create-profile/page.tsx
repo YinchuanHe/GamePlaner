@@ -65,17 +65,6 @@ function CreateProfileClient() {
         data: { email, username, gender, nickname, wechatId, password },
       });
       // login after signup using NextAuth credentials provider
-      const res = await signIn('credentials', {
-        redirect: false,
-        email,
-        password
-      });
-      console.log('Login error:', res);
-      if (res?.error) {
-        setError('Login failed. Please try again.');
-        console.error('Login error:', res.error);
-        return;
-      }
       await update();
       router.push('/');
     } catch (e: any) {

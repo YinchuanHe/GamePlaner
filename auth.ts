@@ -9,7 +9,7 @@ import User from "@/models/User";
 import clientPromise from "@/lib/mongodb";
 import { Resend } from "resend";
 
-// Extend the default session user type to include id and role
+// Extend session types
 declare module "next-auth" {
   interface Session {
     user: {
@@ -24,7 +24,6 @@ declare module "next-auth" {
   }
 }
 
-// Extend JWT to carry the user role
 declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
@@ -36,6 +35,11 @@ declare module "next-auth/jwt" {
 
 export const authOptions: NextAuthOptions = {
   debug: true,
+  secret: process.env.AUTH_SECRET,
+  adapter: MongoDBAdapter(clientPromise),
+  pages: {
+    newUser: '/create-profile', // redirect after first sign-in (email/Google)
+  },
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -47,10 +51,19 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) return null;
         await connect();
         const user = await User.findOne({ email: credentials.email });
-        if (!user || !user.password) return null;
-        const valid = await bcrypt.compare(credentials.password, user.password);
-        if (!valid) return null;
-        return { id: user._id.toString(), email: user.email, name: user.username };
+        if (!user?.password) return null;
+
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) return null;
+
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.username,
+          image: user.image,
+          role: user.role,
+          clubs: user.clubs,
+        };
       },
     }),
     GoogleProvider({
@@ -71,56 +84,48 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  adapter: MongoDBAdapter(clientPromise),
-  secret: process.env.AUTH_SECRET,
-  pages: {
-    newUser: '/create-profile',
-  },
   callbacks: {
     async signIn({ user }) {
-      await connect();
-      const existingUser = await User.findOne({ email: user.email });
-
-      if (existingUser) {
-        return true;
-      } else {
-        // If user does not exist, create a new user
-        await User.create({
-          email: user.email,
-          image: user.image,
-          clubs: [],
-        });
-      }
+      // Let adapter handle user creation, just allow sign-in
       return true;
     },
+
     async jwt({ token, user }) {
-      await connect();
-      const dbUser = await User.findOne({ email: token.email });
-      if (!dbUser) {
-        return token;
+      if (user) {
+        token.id = user.id;
+        token.role = (user as any).role ?? null;
+        token.clubs = (user as any).clubs ?? [];
+        token.profileComplete = Boolean((user as any).username);
       }
 
-      token.id = dbUser._id.toString();
-      token.role = dbUser.role || null;
-      token.clubs = dbUser.clubs ? dbUser.clubs.map((c: any) => c.toString()) : [];
-      token.profileComplete = !!dbUser.username;
+      if (!token.email) return token;
+
+      await connect();
+      const dbUser = await User.findOne({ email: token.email });
+      if (dbUser) {
+        token.id = dbUser._id.toString();
+        token.role = dbUser.role ?? null;
+        token.clubs = dbUser.clubs?.map((c: any) => c.toString()) ?? [];
+        token.profileComplete = Boolean(dbUser.username);
+      }
 
       return token;
     },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string | null;
-        session.user.clubs = token.clubs as string[] | [];
 
-        session.user.profileComplete = token.profileComplete as boolean;
+    async session({ session, token }) {
+      if (session.user && token) {
+        session.user.id = token.id ?? undefined;
+        session.user.role = token.role ?? null;
+        session.user.clubs = token.clubs ?? [];
+        session.user.profileComplete = token.profileComplete ?? false;
       }
       return session;
     },
+
     async redirect({ url, baseUrl }) {
-      return `${baseUrl}/`;
+      return `${baseUrl}/create-profile`; // always redirect after login
     },
   },
-}
+};
 
-export default NextAuth(authOptions)
+export default NextAuth(authOptions);
