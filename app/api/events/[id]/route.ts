@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../../auth';
 import connect from '../../../../utils/mongoose';
 import Event from '../../../../models/Event';
+import User from '../../../../models/User';
+import { uploadAvatar } from '../../../../lib/r2';
 
 export async function GET(
   request: Request,
@@ -69,6 +71,19 @@ export async function POST(
 
   const userId = session.user.id;
   if (!event.participants.some((p: any) => p.toString() === userId)) {
+    const user = await User.findById(userId);
+    if (user && !user.image) {
+      const name = encodeURIComponent(user.username || user.email);
+      const avatarRes = await fetch(
+        `https://ui-avatars.com/api/?name=${name}&background=random&format=png`
+      );
+      const arrayBuffer = await avatarRes.arrayBuffer();
+      const key = `avatars/${user._id}.png`;
+      const url = await uploadAvatar(key, Buffer.from(arrayBuffer));
+      user.image = url;
+      await user.save();
+    }
+
     event.participants.push(userId);
     await event.save();
   }
