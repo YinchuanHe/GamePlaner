@@ -160,7 +160,7 @@ export default function ManagePage() {
           </tbody>
         </table>
       </div>
-      <div className="mt-8 space-y-4">
+      <div className="mt-8 mb-8 space-y-4">
         <div className="flex items-center space-x-2">
           <Input placeholder="New Club Name" value={clubName} onChange={e => setClubName(e.target.value)} />
           <Button onClick={handleCreateClub}>Create Club</Button>
