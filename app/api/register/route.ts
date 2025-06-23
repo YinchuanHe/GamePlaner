@@ -31,72 +31,100 @@ export async function POST(request: Request) {
   } else {
     try {
       await resend.emails.send({
-        from: 'PAiMO <hello@paimo.io>', // Consider replacing no-reply
+        from: 'PAiMO <hello@paimo.io>',
         to: email,
         subject: '🎉 You’re Almost In! Just Confirm Your Email',
         html: `
           <!DOCTYPE html>
-          <html lang="en">
+          <html lang="en" style="margin:0;padding:0;">
           <head>
             <meta charset="UTF-8">
-            <title>Verify Your Email</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
-              body {
-                background-color: #f9f9fb;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                padding: 20px;
-                color: #333;
+              body, table, td, a {
+                -webkit-text-size-adjust: 100%;
+                -ms-text-size-adjust: 100%;
               }
-              .container {
-                background-color: #fff;
+              body {
+                margin: 0;
+                padding: 0;
+                width: 100% !important;
+                height: 100% !important;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f4f4f7;
+              }
+              table {
+                border-collapse: collapse !important;
+              }
+              img {
+                border: 0;
+                line-height: 100%;
+                text-decoration: none;
+                max-width: 100%;
+                height: auto;
+              }
+              .email-container {
                 max-width: 600px;
                 margin: 0 auto;
-                padding: 30px;
+                background: #ffffff;
+                padding: 30px 20px;
                 border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-                text-align: center;
-              }
-              img.logo {
-                max-width: 180px;
-                margin-bottom: 20px;
-              }
-              h2 {
-                color: #2a2a2a;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
               }
               .button {
-                display: inline-block;
-                padding: 14px 28px;
-                margin: 20px auto;
                 background-color: #007bff;
                 color: white;
-                font-size: 16px;
+                padding: 14px 28px;
                 text-decoration: none;
+                display: inline-block;
                 border-radius: 6px;
-              }
-              p {
-                line-height: 1.6;
+                font-size: 16px;
+                margin-top: 20px;
               }
               .footer {
                 font-size: 12px;
-                color: #888;
+                color: #888888;
+                text-align: center;
                 margin-top: 40px;
+              }
+              @media screen and (max-width: 600px) {
+                .email-container {
+                  width: 100% !important;
+                  padding: 20px 10px !important;
+                }
+                .button {
+                  width: 100% !important;
+                  text-align: center;
+                  display: block;
+                  margin-top: 20px;
+                }
               }
             </style>
           </head>
           <body>
-            <div class="container">
-              <img src="${appUrl}/paimo_logo.png" alt="PAiMO Logo" class="logo" />
-              <h2>Let’s Get This Party Started 🎊</h2>
-              <p>Hey there! We’re thrilled to have you at <strong>PAiMO</strong>.</p>
-              <p>But first things first — hit that big blue button below to confirm your email and unlock the magic ✨.</p>
-              <a href="${appUrl}/api/verify-email?token=${token}" class="button">Confirm My Email</a>
-              <p>Prefer copy-paste? Here you go:</p>
-              <p><a href="${appUrl}/api/verify-email?token=${token}">${appUrl}/api/verify-email?token=${token}</a></p>
-              <div class="footer">
-                <p>You're receiving this email because you signed up for PAiMO.</p>
-                <p>&copy; ${new Date().getFullYear()} PAiMO. All rights reserved.</p>
+            <center>
+              <div class="email-container">
+                <img src="${appUrl}/paimo_logo.png" alt="PAiMO Logo" width="180" style="margin-bottom: 20px;" />
+                <h2 style="color: #222;">Let’s Get This Party Started 🎊</h2>
+                <p style="font-size: 16px; line-height: 1.5; color: #333;">
+                  Hey there! We’re so excited to have you on board at <strong>PAiMO</strong>.
+                  <br /><br />
+                  Just one more step — tap the button below to confirm your email and dive in!
+                </p>
+                <a href="${appUrl}/api/verify-email?token=${token}" class="button">Confirm My Email</a>
+                <p style="font-size: 14px; color: #555; margin-top: 30px;">
+                  If that button doesn’t work, here’s the direct link:
+                  <br />
+                  <a href="${appUrl}/api/verify-email?token=${token}" style="color: #007bff; word-break: break-all;">
+                    ${appUrl}/api/verify-email?token=${token}
+                  </a>
+                </p>
+                <div class="footer">
+                  <p>You’re getting this email because you signed up for PAiMO.</p>
+                  <p>&copy; ${new Date().getFullYear()} PAiMO. All rights reserved.</p>
+                </div>
               </div>
-            </div>
+            </center>
           </body>
           </html>
         `,
