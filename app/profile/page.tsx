@@ -21,7 +21,6 @@ export default function ProfilePage() {
   const { request, loading, error } = useApi();
   const [data, setData] = useState<ProfileData | null>(null);
   const [usernameEdit, setUsernameEdit] = useState('');
-  const [passwordEdit, setPasswordEdit] = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -108,30 +107,22 @@ export default function ProfilePage() {
         </Button>
       </div>
       <div className="space-y-2 pt-4">
-        <h2 className="text-xl">Change Password</h2>
-        <Input
-          type="password"
-          placeholder="New password"
-          value={passwordEdit}
-          onChange={e => setPasswordEdit(e.target.value)}
-        />
+        <h2 className="text-xl">Reset Password</h2>
         <Button
           onClick={async () => {
             setMessage('');
             try {
               await request({
-                url: '/api/profile',
-                method: 'put',
-                data: { password: passwordEdit },
+                url: '/api/request-password-reset',
+                method: 'post',
               });
-              setPasswordEdit('');
-              setMessage('Password updated');
+              setMessage('Password reset email sent');
             } catch {
-              setMessage('Failed to update password');
+              setMessage('Failed to send reset email');
             }
           }}
         >
-          Save Password
+          Send Reset Email
         </Button>
       </div>
       {message && <p className="text-green-500">{message}</p>}
