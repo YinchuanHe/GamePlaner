@@ -54,6 +54,7 @@ export async function PUT(request: Request) {
     update.password = hashed;
   }
   await User.updateOne({ _id: session.user.id }, update);
+
   return NextResponse.json({ success: true });
 }
 
