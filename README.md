@@ -16,7 +16,7 @@ Welcome to the PIV Club's not-so-serious game scheduler. It's a Next.js app with
    ```
 3. Fire up the dev server with `npm run dev` and open `http://localhost:3000`.
 4. Head to `/signup` to create an account, then `/login` to start planning.
-5. After logging in, your browser will prompt you to enable notifications. Allow it to receive event updates.
+5. After logging in, the site asks permission to send push notifications and you can install it like any PWA. Allow notifications to get updates for new events and registrations.
 
 That's it. Short, sweet, and probably unstable—handle with care!
 
