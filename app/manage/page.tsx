@@ -36,6 +36,7 @@ export default function ManagePage() {
   const { data: session, status } = useSession();
   const { request, loading, error } = useApi();
   const [users, setUsers] = useState<User[]>([]);
+  const [search, setSearch] = useState('');
   const [clubName, setClubName] = useState('');
   const [eventName, setEventName] = useState('');
   const [clubs, setClubs] = useState<ClubOption[]>([]);
@@ -125,11 +126,21 @@ export default function ManagePage() {
     return <div className="p-4">Failed to load.</div>
   }
 
+  const filteredUsers = users.filter(u =>
+    u.username.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="container mx-auto mt-8">
-      <h1 className="text-xl font-semibold mb-4">Role Management</h1>
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm border">
+    <div className="p-4 space-y-4">
+      <h1 className="text-xl font-semibold">Role Management</h1>
+      <Input
+        placeholder="Search users"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        className="w-full max-w-xs"
+      />
+      <div className="overflow-x-auto max-h-64 overflow-y-auto">
+        <table className="min-w-full text-xs sm:text-sm border">
           <thead className="bg-gray-100">
             <tr>
               <th className="border p-2 text-left">Username</th>
@@ -137,7 +148,7 @@ export default function ManagePage() {
             </tr>
           </thead>
           <tbody>
-            {users.map(u => (
+            {filteredUsers.map(u => (
               <tr key={u.username} className="odd:bg-white even:bg-gray-50">
                 <td className="border p-2">{u.username}</td>
                 <td className="border p-2">
@@ -161,18 +172,24 @@ export default function ManagePage() {
         </table>
       </div>
       <div className="mt-8 mb-8 space-y-4">
-        <div className="flex items-center space-x-2">
-          <Input placeholder="New Club Name" value={clubName} onChange={e => setClubName(e.target.value)} />
+        <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
+          <Input
+            placeholder="New Club Name"
+            value={clubName}
+            onChange={e => setClubName(e.target.value)}
+            className="flex-1"
+          />
           <Button onClick={handleCreateClub}>Create Club</Button>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
           <Input
             placeholder="New Event Name"
             value={eventName}
             onChange={e => setEventName(e.target.value)}
+            className="flex-1"
           />
           <Select value={selectedClub} onValueChange={setSelectedClub}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="sm:w-[180px] w-full">
               <SelectValue placeholder="Select Club" />
             </SelectTrigger>
             <SelectContent>
@@ -197,7 +214,7 @@ export default function ManagePage() {
         <div>
           <h2 className="text-lg font-semibold mt-4">Pending Signups</h2>
           <div className="overflow-x-auto">
-            <table className="min-w-full text-sm border">
+            <table className="min-w-full text-xs sm:text-sm border">
               <thead className="bg-gray-100">
                 <tr>
                   <th className="border p-2 text-left">Email</th>
