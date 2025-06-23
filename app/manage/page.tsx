@@ -96,10 +96,6 @@ export default function ManagePage() {
     await request({ url: `/api/pending-users/${id}/resend`, method: 'post' });
   };
 
-  const handleSkip = async (id: string) => {
-    await request({ url: `/api/pending-users/${id}/skip`, method: 'post' });
-    fetchPending();
-  };
 
   const handleRemove = async (id: string) => {
     await request({ url: `/api/pending-users/${id}`, method: 'delete' });
@@ -213,9 +209,6 @@ export default function ManagePage() {
                     <td className="border p-2">{p.email}</td>
                       <td className="border p-2 space-x-2">
                         <Button size="sm" onClick={() => handleResend(p.id)}>Resend</Button>
-                        <Button size="sm" variant="outline" onClick={() => handleSkip(p.id)}>
-                          Skip
-                        </Button>
                         <Button size="sm" variant="destructive" onClick={() => handleRemove(p.id)}>
                           Remove
                         </Button>
