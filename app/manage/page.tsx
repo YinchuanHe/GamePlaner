@@ -36,6 +36,7 @@ export default function ManagePage() {
   const { data: session, status } = useSession();
   const { request, loading, error } = useApi();
   const [users, setUsers] = useState<User[]>([]);
+  const [search, setSearch] = useState('');
   const [clubName, setClubName] = useState('');
   const [eventName, setEventName] = useState('');
   const [clubs, setClubs] = useState<ClubOption[]>([]);
@@ -125,9 +126,19 @@ export default function ManagePage() {
     return <div className="p-4">Failed to load.</div>
   }
 
+  const filteredUsers = users.filter(u =>
+    u.username.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-xl font-semibold">Role Management</h1>
+      <Input
+        placeholder="Search users"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        className="w-full max-w-xs"
+      />
       <div className="overflow-x-auto max-h-64 overflow-y-auto">
         <table className="min-w-full text-xs sm:text-sm border">
           <thead className="bg-gray-100">
@@ -137,7 +148,7 @@ export default function ManagePage() {
             </tr>
           </thead>
           <tbody>
-            {users.map(u => (
+            {filteredUsers.map(u => (
               <tr key={u.username} className="odd:bg-white even:bg-gray-50">
                 <td className="border p-2">{u.username}</td>
                 <td className="border p-2">
