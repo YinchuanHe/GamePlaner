@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import connect from '@/utils/mongoose';
-import User from '@/models/User';
 import PendingUser from '@/models/PendingUser';
 
 export async function GET(req: Request) {
@@ -15,12 +14,7 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Invalid or expired token' }, { status: 400 });
   }
   const { email } = pending;
-  const existing = await User.findOne({ email });
-  if (!existing) {
-    await User.create({ email });
-  }
-  await PendingUser.deleteOne({ token });
   return NextResponse.redirect(
-    `${process.env.NEXT_PUBLIC_APP_URL}/create-profile?email=${encodeURIComponent(email)}`
+    `${process.env.NEXT_PUBLIC_APP_URL}/create-profile?email=${encodeURIComponent(email)}&token=${token}`
   );
 }

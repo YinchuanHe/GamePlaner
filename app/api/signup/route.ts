@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connect from '../../../utils/mongoose';
 import User from '../../../models/User';
+import PendingUser from '../../../models/PendingUser';
 import bcrypt from 'bcryptjs';
 import AvatarModule from 'boring-avatars';
 const Avatar = (AvatarModule as any).default;
@@ -8,16 +9,24 @@ import { uploadAvatar } from '../../../lib/r2';
 
 export async function POST(request: Request) {
   try {
-    const { email, username, gender, nickname, wechatId, password } = await request.json()
+    const { email, token, username, gender, nickname, wechatId, password } = await request.json()
 
-    if (!email) {
+    if (!email || !token) {
       return NextResponse.json(
-        { success: false, message: 'Email is required' },
+        { success: false, message: 'Email and token are required' },
         { status: 400 }
       )
     }
 
     await connect()
+
+    const pending = await PendingUser.findOne({ email, token })
+    if (!pending) {
+      return NextResponse.json(
+        { success: false, message: 'Invalid or expired token' },
+        { status: 400 }
+      )
+    }
 
     const update: any = { username, gender, nickname, wechatId }
     if (password) {
@@ -46,6 +55,8 @@ export async function POST(request: Request) {
       user.image = url
       await user.save()
     }
+
+    await pending.deleteOne()
 
     return NextResponse.json({ success: true, user })
   } catch (err: any) {
