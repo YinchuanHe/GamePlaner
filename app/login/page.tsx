@@ -51,6 +51,9 @@ export default function LoginPage() {
         <Button variant="outline" className="w-full" asChild>
           <Link href="/signup">Sign Up</Link>
         </Button>
+        <Button variant="outline" className="w-full" asChild>
+          <Link href="/reset-password">Reset Password</Link>
+        </Button>
       </div>
     </div>
   );
