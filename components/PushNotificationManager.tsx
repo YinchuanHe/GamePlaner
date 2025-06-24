@@ -1,5 +1,5 @@
 import { sendNotification, subscribeUser, unsubscribeUser } from "@/app/actions"
-import { urlBase64ToUint8Array } from "@/app/page"
+import { urlBase64ToUint8Array } from "@/lib/push"
 import { useState, useEffect } from "react"
 
 
