@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
+import ConfirmLeaveDialog from '../../../components/club/ConfirmLeaveDialog';
 import EventCard from '../../../components/EventCard';
 import ClubCard from '../../../components/ClubCard';
 import UserCard from '../../../components/UserCard';
@@ -43,6 +44,7 @@ export default function ClubHome({ params }: { params: { id: string } }) {
   const [clubLogo, setClubLogo] = useState('');
   const [isMember, setIsMember] = useState(false);
   const [newEventName, setNewEventName] = useState('');
+  const [showLeave, setShowLeave] = useState(false);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -74,6 +76,23 @@ export default function ClubHome({ params }: { params: { id: string } }) {
 
   const joinClub = async () => {
     await request({ url: `/api/clubs/${params.id}`, method: 'post' });
+    const res = await request<{ club: any; members: Member[]; events: EventItem[] }>({
+      url: `/api/clubs/${params.id}`,
+      method: 'get',
+    });
+    setMembers(res.members);
+    setEvents(res.events.map(e => ({ ...e, clubName: res.club.name })));
+    setClubName(res.club.name);
+    setClubDesc(res.club.description || '');
+    setClubLocation(res.club.location || '');
+    setClubCreatedBy(res.club.createdBy || '');
+    setClubCreatedAt(res.club.createdAt || '');
+    setClubLogo(res.club.logoUrl || '');
+    setIsMember(res.members.some((m: Member) => m.id === session?.user?.id));
+  };
+
+  const leaveClub = async () => {
+    await request({ url: `/api/clubs/${params.id}/leave`, method: 'delete' });
     const res = await request<{ club: any; members: Member[]; events: EventItem[] }>({
       url: `/api/clubs/${params.id}`,
       method: 'get',
@@ -168,8 +187,18 @@ export default function ClubHome({ params }: { params: { id: string } }) {
           ))}
         </div>
       </div>
-      {!isMember && (
-        <Button onClick={joinClub}>Join us!</Button>
+      {!isMember && <Button onClick={joinClub}>Join us!</Button>}
+      {isMember && (
+        <>
+          <Button variant="destructive" onClick={() => setShowLeave(true)}>
+            Leave Club
+          </Button>
+          <ConfirmLeaveDialog
+            open={showLeave}
+            onClose={() => setShowLeave(false)}
+            onConfirm={leaveClub}
+          />
+        </>
       )}
     </div>
   );

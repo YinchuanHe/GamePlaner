@@ -1,9 +1,11 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import ClubCard from '../../components/ClubCard'
+import ConfirmLeaveDialog from '../../components/club/ConfirmLeaveDialog'
+import { Button } from '../../components/ui/button'
 import PageSkeleton from '../../components/PageSkeleton'
 import { useApi } from '../../lib/useApi'
 
@@ -22,6 +24,13 @@ export default function MyClubPage() {
   const { data: session, status } = useSession()
   const { request, loading, error } = useApi()
   const [clubs, setClubs] = useState<Club[]>([])
+  const [leaveId, setLeaveId] = useState<string>('')
+  const [showLeave, setShowLeave] = useState(false)
+
+  const fetchClubs = useCallback(async () => {
+    const res = await request<{ clubs: Club[] }>({ url: '/api/myclubs', method: 'get' })
+    setClubs(res.clubs)
+  }, [request])
 
   useEffect(() => {
     if (status === 'loading') return
@@ -29,12 +38,13 @@ export default function MyClubPage() {
       router.push('/login')
       return
     }
-    const fetchClubs = async () => {
-      const res = await request<{ clubs: Club[] }>({ url: '/api/myclubs', method: 'get' })
-      setClubs(res.clubs)
-    }
     fetchClubs()
-  }, [status, session, router, request])
+  }, [status, session, router, fetchClubs])
+
+  const leaveClub = async (id: string) => {
+    await request({ url: `/api/clubs/${id}/leave`, method: 'delete' })
+    fetchClubs()
+  }
 
   if (status === 'loading' || loading) {
     return <PageSkeleton />
@@ -55,12 +65,29 @@ export default function MyClubPage() {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {clubs.map(c => (
-            <Link key={c.id} href={`/clubs/${c.id}`}>
-              <ClubCard club={c} />
-            </Link>
+            <div key={c.id} className="space-y-1">
+              <Link href={`/clubs/${c.id}`} className="block">
+                <ClubCard club={c} />
+              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setLeaveId(c.id)
+                  setShowLeave(true)
+                }}
+              >
+                Leave
+              </Button>
+            </div>
           ))}
         </div>
       )}
+      <ConfirmLeaveDialog
+        open={showLeave}
+        onClose={() => setShowLeave(false)}
+        onConfirm={async () => leaveClub(leaveId)}
+      />
     </div>
   )
 }
