@@ -36,7 +36,11 @@ export default function LoginPage() {
   const handleResetPassword = async () => {
     setMessage('');
     try {
-      await request({ url: '/api/request-password-reset', method: 'post' });
+      await request({
+        url: '/api/request-password-reset',
+        method: 'post',
+        data: { email },
+      });
       setMessage('Password reset email sent');
     } catch {
       setMessage('Failed to send reset email');
