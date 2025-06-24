@@ -45,6 +45,7 @@ export default function ClubHome({ params }: { params: { id: string } }) {
   const [clubLogo, setClubLogo] = useState('');
   const [isMember, setIsMember] = useState(false);
   const [newEventName, setNewEventName] = useState('');
+  const [savingLocation, setSavingLocation] = useState(false);
   const [showLeave, setShowLeave] = useState(false);
 
   useEffect(() => {
@@ -130,6 +131,16 @@ export default function ClubHome({ params }: { params: { id: string } }) {
     setClubLogo(res.club.logoUrl || '');
   };
 
+  const updateLocation = async () => {
+    setSavingLocation(true);
+    await request({
+      url: `/api/clubs/${params.id}`,
+      method: 'put',
+      data: { location: clubLocation },
+    });
+    setSavingLocation(false);
+  };
+
   if (status === 'loading' || loading) {
     return <PageSkeleton />
   }
@@ -155,6 +166,17 @@ export default function ClubHome({ params }: { params: { id: string } }) {
         <div>
           <h2 className="text-xl mb-2">Location Map</h2>
           <ClubMap location={clubLocation} />
+        </div>
+      )}
+      {isAdmin && (
+        <div className="space-x-2 mt-2 flex items-center">
+          <Input
+            placeholder="Club location"
+            value={clubLocation}
+            onChange={e => setClubLocation(e.target.value)}
+            className="flex-1"
+          />
+          <Button onClick={updateLocation} disabled={savingLocation}>Save</Button>
         </div>
       )}
       {showEvents && (

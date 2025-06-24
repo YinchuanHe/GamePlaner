@@ -38,6 +38,7 @@ export default function ManagePage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState('');
   const [clubName, setClubName] = useState('');
+  const [clubLocation, setClubLocation] = useState('');
   const [clubVisibility, setClubVisibility] = useState<'private' | 'public'>('private');
   const [eventName, setEventName] = useState('');
   const [clubs, setClubs] = useState<ClubOption[]>([]);
@@ -62,9 +63,10 @@ export default function ManagePage() {
     await request({
       url: '/api/clubs',
       method: 'post',
-      data: { name: clubName, visibility: clubVisibility },
+      data: { name: clubName, location: clubLocation, visibility: clubVisibility },
     });
     setClubName('');
+    setClubLocation('');
     setClubVisibility('private');
     fetchClubs();
   };
@@ -183,6 +185,12 @@ export default function ManagePage() {
             placeholder="New Club Name"
             value={clubName}
             onChange={e => setClubName(e.target.value)}
+            className="flex-1"
+          />
+          <Input
+            placeholder="Location"
+            value={clubLocation}
+            onChange={e => setClubLocation(e.target.value)}
             className="flex-1"
           />
           <Select
