@@ -12,7 +12,7 @@ export default function AppFooter() {
   if (!session) return null
   const isHome = pathname === '/'
   const isEvents = pathname.startsWith('/events') || pathname === '/event-edit'
-  const isClubs = pathname.startsWith('/clubs') || pathname === '/user'
+  const isClubs = pathname.startsWith('/clubs') || pathname === '/myclub'
   const isProfile = pathname === '/profile'
 
   const btnClass = (active: boolean) =>
@@ -33,7 +33,7 @@ export default function AppFooter() {
         </Link>
       </Button>
       <Button variant="ghost" className={btnClass(isClubs)} asChild>
-        <Link href="/user">
+        <Link href="/myclub">
           <Users className="h-5 w-5" />
           <span className="text-xs">Club</span>
         </Link>

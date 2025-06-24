@@ -17,7 +17,7 @@ interface Club {
   logoUrl?: string
 }
 
-export default function UserPage() {
+export default function MyClubPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
   const { request, loading, error } = useApi()
@@ -46,7 +46,10 @@ export default function UserPage() {
 
   return (
     <div className="p-4 space-y-2">
-      <h1 className="text-2xl mb-4">My Clubs</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl">My Clubs</h1>
+        <Link href="/clubs" className="text-sm underline">Club Directory</Link>
+      </div>
       {clubs.length === 0 ? (
         <p>You are not a member of any clubs.</p>
       ) : (
