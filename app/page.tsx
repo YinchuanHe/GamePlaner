@@ -9,6 +9,7 @@ import PageSkeleton from '../components/PageSkeleton'
 import { useApi } from '../lib/useApi'
 import { useRouter } from 'next/navigation';
 import { IUser } from '@/models/User'
+import { PushNotificationManager } from '@/components/PushNotificationManager'
 
 interface EventItem {
   id: string
@@ -18,6 +19,19 @@ interface EventItem {
   registrationEndTime?: string
   createdAt: string
   participantCount?: number
+}
+
+export function urlBase64ToUint8Array(base64String: string) {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
+
+  const rawData = window.atob(base64)
+  const outputArray = new Uint8Array(rawData.length)
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i)
+  }
+  return outputArray
 }
 
 export default function Home() {
@@ -61,6 +75,7 @@ export default function Home() {
             <Link href="/signup">Sign Up</Link>
           </Button>
         </div>
+        <PushNotificationManager />
       </div>
     )
   }
