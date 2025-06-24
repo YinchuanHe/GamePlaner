@@ -28,7 +28,6 @@ export function useEventPage(eventId: string) {
     const isAdmin = session?.user?.role === 'admin' || session?.user?.role === 'super-admin';
     const isParticipant = !!(event?.participants || []).find((p: any) => p.id === session?.user?.id);
     const canRegister =
-        !isAdmin &&
         !isParticipant &&
         event?.status === 'registration' &&
         (!event?.registrationEndTime || dayjs(event.registrationEndTime).isAfter(dayjs())) &&
@@ -40,7 +39,6 @@ export function useEventPage(eventId: string) {
         );
 
     const canUnregister =
-        !isAdmin &&
         isParticipant &&
         event?.status === 'registration' &&
         (!event?.registrationEndTime || dayjs(event.registrationEndTime).isAfter(dayjs()));
