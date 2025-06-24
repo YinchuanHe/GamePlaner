@@ -65,7 +65,7 @@ const Step = ({ title, isCompleted, isActive }: StepProps) => {
 export default function StepIndicator({ step }: StepIndicatorProps) {
   const currentIndex = EVENT_STEPS.indexOf(step)
   return (
-    <div className="flex flex-nowrap items-center gap-4 mb-4 overflow-x-auto h-16">
+    <div className="sticky top-12 z-40 -mx-4 px-4 flex flex-nowrap items-center gap-4 mb-4 overflow-x-auto h-16 bg-background">
       {EVENT_STEPS.map((s, index) => (
         <React.Fragment key={s}>
           <Step

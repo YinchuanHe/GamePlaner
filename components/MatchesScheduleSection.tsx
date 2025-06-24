@@ -65,7 +65,7 @@ export default function MatchesScheduleSection({ matches, onScoreUpdated }: Matc
             />
 
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList>
+                <TabsList className="sticky top-12 z-30 -mx-4 px-4 w-full overflow-x-auto bg-background">
                     {sortedGroupKeys.map(groupIdx => (
                         <TabsTrigger key={groupIdx} value={String(groupIdx)}>
                             Group {String.fromCharCode(65 + groupIdx)}
