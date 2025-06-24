@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import connect from '../../../utils/mongoose';
 import User from '../../../models/User';
 import bcrypt from 'bcryptjs';
-import Avatar from 'boring-avatars';
+import AvatarModule from 'boring-avatars';
+const Avatar = (AvatarModule as any).default;
 import { uploadAvatar } from '../../../lib/r2';
 
 export async function POST(request: Request) {
