@@ -55,7 +55,7 @@ export default function ProfilePage() {
           width={96}
           height={96}
           className="rounded-full"
-          priority
+          unoptimized
         />
       ) : (
         <Avatar size={96} name={data.username || data.email} variant="beam" />
