@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./Providers";
+import PushInitializer from "@/components/PushInitializer";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../auth";
 
@@ -26,10 +27,12 @@ export default async function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body suppressHydrationWarning className="h-dvh overflow-x-hidden overflow-y-hidden overscroll-contain">
         <Providers session={session}>
           {children}
+          <PushInitializer />
         </Providers>
       </body>
     </html>

@@ -3,6 +3,9 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../../../auth';
 import connect from '../../../../utils/mongoose';
 import Event from '../../../../models/Event';
+import Club from '../../../../models/Club';
+import PushSubscription from '../../../../models/PushSubscription';
+import { sendPush } from '../../../../lib/push';
 
 export async function GET(
   request: Request,
@@ -96,18 +99,33 @@ export async function PUT(
     umpires,
   } = await request.json();
   await connect();
-  const update: any = {};
-  if (name !== undefined) update.name = name;
-  if (status !== undefined) update.status = status;
-  if (visibility !== undefined) update.visibility = visibility;
-  if (registrationEndTime !== undefined) update.registrationEndTime = registrationEndTime;
-  if (location !== undefined) update.location = location;
-  if (gameStyle !== undefined) update.gameStyle = gameStyle;
-  if (maxPoint !== undefined) update.maxPoint = maxPoint;
-  if (courtCount !== undefined) update.courtCount = courtCount;
-  if (umpires !== undefined) update.umpires = umpires;
-  await Event.updateOne({ _id: params.id }, update);
-  return NextResponse.json({ success: true });
+  const event = await Event.findById(params.id)
+  if (!event) return NextResponse.json({ success: false }, { status: 404 })
+
+  const prevStatus = event.status
+  const update: any = {}
+  if (name !== undefined) update.name = name
+  if (status !== undefined) update.status = status
+  if (visibility !== undefined) update.visibility = visibility
+  if (registrationEndTime !== undefined) update.registrationEndTime = registrationEndTime
+  if (location !== undefined) update.location = location
+  if (gameStyle !== undefined) update.gameStyle = gameStyle
+  if (maxPoint !== undefined) update.maxPoint = maxPoint
+  if (courtCount !== undefined) update.courtCount = courtCount
+  if (umpires !== undefined) update.umpires = umpires
+  await Event.updateOne({ _id: params.id }, update)
+
+  if (status === 'registration' && prevStatus !== 'registration' && event.club) {
+    const club = await Club.findById(event.club)
+    const memberIds = (club?.members || []).map((m: any) => m.id)
+    const subs = await PushSubscription.find({ userId: { $in: memberIds } })
+    await sendPush(
+      subs.map(s => s.subscription),
+      { title: 'Registration Open', body: `${event.name} is open for registration` },
+    )
+  }
+
+  return NextResponse.json({ success: true })
 }
 
 export async function DELETE(
