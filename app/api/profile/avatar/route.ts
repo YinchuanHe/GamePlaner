@@ -6,12 +6,13 @@ import User from '../../../../models/User';
 import sharp from 'sharp';
 import { uploadAvatar } from '../../../../lib/r2';
 
-export async function compressAvatar(data: Buffer): Promise<Buffer> {
-  return await sharp(data)
-    .resize(96, 96, { fit: 'cover' })        // Crop and scale to square
-    .webp({ quality: 85, effort: 5 })        // WebP format with good balance
-    .toBuffer();                             // Output as buffer for upload or save
-}
+async function compressAvatar(data: Buffer): Promise<Buffer> {
+  let width = 256;
+  const limit = 10 * 1024; // 10kb for better readability
+    if (output.byteLength <= limit) return output;
+    if (quality > 50) {
+      width = Math.floor(width * 0.9);
+      if (width < 96) return output.slice(0, limit);
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);

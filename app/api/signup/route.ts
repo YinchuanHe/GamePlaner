@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       const { renderToStaticMarkup } = await import('react-dom/server')
       const svg = renderToStaticMarkup(
         createElement(Avatar, {
-          size: 120,
+          size: 256,
           name: user.username || user.email,
           variant: 'beam'
         })

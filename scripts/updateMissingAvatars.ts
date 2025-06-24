@@ -13,7 +13,7 @@ async function main() {
   const { renderToStaticMarkup } = await import('react-dom/server')
   for (const user of users) {
     const svg = renderToStaticMarkup(
-      createElement(Avatar, { size: 120, name: user.username || user.email, variant: 'beam' })
+      createElement(Avatar, { size: 256, name: user.username || user.email, variant: 'beam' })
     )
     const key = `avatars/${user._id}.svg`
     const url = await uploadAvatar(key, Buffer.from(svg), 'image/svg+xml')
