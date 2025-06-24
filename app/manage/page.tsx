@@ -38,6 +38,8 @@ export default function ManagePage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState('');
   const [clubName, setClubName] = useState('');
+  const [clubLocation, setClubLocation] = useState('');
+  const [clubVisibility, setClubVisibility] = useState<'private' | 'public'>('private');
   const [eventName, setEventName] = useState('');
   const [clubs, setClubs] = useState<ClubOption[]>([]);
   const [selectedClub, setSelectedClub] = useState<string>('');
@@ -58,13 +60,19 @@ export default function ManagePage() {
   };
 
   const handleCreateClub = async () => {
-    await request({ url: '/api/clubs', method: 'post', data: { name: clubName } });
+    await request({
+      url: '/api/clubs',
+      method: 'post',
+      data: { name: clubName, location: clubLocation, visibility: clubVisibility },
+    });
     setClubName('');
+    setClubLocation('');
+    setClubVisibility('private');
     fetchClubs();
   };
 
   const fetchClubs = useCallback(async () => {
-    const res = await request<{ clubs: any[] }>({ url: '/api/clubs', method: 'get' });
+    const res = await request<{ clubs: any[] }>({ url: '/api/clubs?all=1', method: 'get' });
     setClubs(
       res.clubs.map((c: any) => ({
         id: c._id || c.id,
@@ -179,6 +187,24 @@ export default function ManagePage() {
             onChange={e => setClubName(e.target.value)}
             className="flex-1"
           />
+          <Input
+            placeholder="Location"
+            value={clubLocation}
+            onChange={e => setClubLocation(e.target.value)}
+            className="flex-1"
+          />
+          <Select
+            value={clubVisibility}
+            onValueChange={value => setClubVisibility(value as 'private' | 'public')}
+          >
+            <SelectTrigger className="sm:w-[140px] w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="private">Private</SelectItem>
+              <SelectItem value="public">Public</SelectItem>
+            </SelectContent>
+          </Select>
           <Button onClick={handleCreateClub}>Create Club</Button>
         </div>
         <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">

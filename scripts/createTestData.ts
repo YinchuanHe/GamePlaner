@@ -33,6 +33,7 @@ async function main() {
 
   const club = await Club.create({
     name: clubName,
+    visibility: 'public',
     createdBy: 'script',
     members: users.map(u => ({ id: u._id, username: u.username || u.email })),
   });

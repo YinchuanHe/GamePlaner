@@ -8,6 +8,11 @@ const clubSchema = new Schema({
   createdBy: String,
   createdAt: { type: Date, default: Date.now },
   logoUrl: String,
+  visibility: {
+    type: String,
+    enum: ['private', 'public'],
+    default: 'private',
+  },
   members: [
     {
       id: { type: Schema.Types.ObjectId, ref: 'User' },
