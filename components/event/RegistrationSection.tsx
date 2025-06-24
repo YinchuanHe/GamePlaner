@@ -2,7 +2,6 @@ import React from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Trash } from 'lucide-react'
-import Avatar from 'boring-avatars'
 
 export interface Participant {
     id: string
@@ -35,17 +34,11 @@ export default function RegistrationSection({
                         className="flex items-center justify-between bg-gray-50 p-2 rounded"
                     >
                         <div className="flex items-center space-x-2">
-                            {p.image ? (
+                            {p.image && (
                                 <img
                                     src={p.image}
                                     alt={p.username}
                                     className="h-6 w-6 rounded-full"
-                                />
-                            ) : (
-                                <Avatar
-                                    size={24}
-                                    name={p.username || p.id}
-                                    variant="beam"
                                 />
                             )}
                             <span>{p.username || 'Anonymous'}</span>

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import connect from '../../../utils/mongoose';
 import User from '../../../models/User';
 import bcrypt from 'bcryptjs';
+import Avatar from 'boring-avatars';
+import { uploadAvatar } from '../../../lib/r2';
 
 export async function POST(request: Request) {
   try {
@@ -22,13 +24,29 @@ export async function POST(request: Request) {
       update.password = hashed
     }
 
-    const updated = await User.findOneAndUpdate(
+    let user = await User.findOneAndUpdate(
       { email },
       { $set: update },
       { new: true, upsert: true }
     )
 
-    return NextResponse.json({ success: true, user: updated })
+    if (user && !user.image) {
+      const { createElement } = await import('react')
+      const { renderToStaticMarkup } = await import('react-dom/server')
+      const svg = renderToStaticMarkup(
+        createElement(Avatar, {
+          size: 120,
+          name: user.username || user.email,
+          variant: 'beam'
+        })
+      )
+      const key = `avatars/${user._id}.svg`
+      const url = await uploadAvatar(key, Buffer.from(svg), 'image/svg+xml')
+      user.image = url
+      await user.save()
+    }
+
+    return NextResponse.json({ success: true, user })
   } catch (err: any) {
     console.error('Failed to upsert user:', err)
     return NextResponse.json(
