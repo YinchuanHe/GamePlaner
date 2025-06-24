@@ -22,6 +22,7 @@ export default function ProfilePage() {
   const [data, setData] = useState<ProfileData | null>(null);
   const [usernameEdit, setUsernameEdit] = useState('');
   const [message, setMessage] = useState('');
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -77,6 +78,37 @@ export default function ProfilePage() {
           <strong>Clubs:</strong> {data.clubs.join(', ')}
         </p>
       )}
+      <div className="space-y-2 pt-4">
+        <h2 className="text-xl">Update Avatar</h2>
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={e => setAvatarFile(e.target.files ? e.target.files[0] : null)}
+        />
+        <Button
+          onClick={async () => {
+            if (!avatarFile) return;
+            setMessage('');
+            const form = new FormData();
+            form.append('avatar', avatarFile);
+            try {
+              const res = await request<{ url: string }>({
+                url: '/api/profile/avatar',
+                method: 'post',
+                data: form,
+                headers: { 'Content-Type': 'multipart/form-data' },
+              });
+              setData(prev => (prev ? { ...prev, image: res.url } : prev));
+              setAvatarFile(null);
+              setMessage('Avatar updated');
+            } catch {
+              setMessage('Failed to update avatar');
+            }
+          }}
+        >
+          Save Avatar
+        </Button>
+      </div>
       <div className="space-y-2 pt-4">
         <h2 className="text-xl">Update Username</h2>
         <Input
