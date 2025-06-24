@@ -30,12 +30,13 @@ function CreateProfileClient() {
   const [gender, setGender] = useState('');
   const [nickname, setNickname] = useState('');
   const [wechatId, setWechatId] = useState('');
+  const [token, setToken] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
-  // Populate email from NextAuth session or query param
+  // Populate email and token from session or query params
   useEffect(() => {
     if (session?.user?.email) {
       setEmail(session.user.email);
@@ -43,6 +44,8 @@ function CreateProfileClient() {
       const param = searchParams.get('email');
       if (param) setEmail(param);
     }
+    const t = searchParams.get('token');
+    if (t) setToken(t);
   }, [session, searchParams]);
 
   const handleSubmit = async () => {
@@ -62,7 +65,7 @@ function CreateProfileClient() {
       await request({
         url: '/api/signup',
         method: 'post',
-        data: { email, username, gender, nickname, wechatId, password },
+        data: { email, token, username, gender, nickname, wechatId, password },
       });
       // login after signup using NextAuth credentials provider
       const res = await signIn('credentials', {
