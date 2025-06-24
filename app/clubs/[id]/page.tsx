@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import ConfirmLeaveDialog from '../../../components/club/ConfirmLeaveDialog';
+import ClubMap from '../../../components/club/ClubMap';
 import EventCard from '../../../components/EventCard';
 import ClubCard from '../../../components/ClubCard';
 import UserCard from '../../../components/UserCard';
@@ -150,6 +151,12 @@ export default function ClubHome({ params }: { params: { id: string } }) {
           logoUrl: clubLogo,
         }}
       />
+      {clubLocation && (
+        <div>
+          <h2 className="text-xl mb-2">Location Map</h2>
+          <ClubMap location={clubLocation} />
+        </div>
+      )}
       {showEvents && (
         <div>
           <h2 className="text-xl mb-2">Ongoing Events</h2>
